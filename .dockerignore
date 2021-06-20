@@ -1,0 +1,3 @@
+#dockerで無視するローカルのファイル
+# 同期させない
+node_modules

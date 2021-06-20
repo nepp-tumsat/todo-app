@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  fronted:
+    container_name: todo_front
+    build:
+      context: .
+      dockerfile: Dockerfile.front
+    volumes:
+      - .:/app
+      - vue_node_modules:/app/node_modules
+    tty: True
+    stdin_open: True
+    ports:
+      - "3031:3031"
+    environment:
+      TZ: "Asia/Tokyo"
+
+  backend:
+    container_name: todo_back
+    build:
+      context: .
+      dockerfile: Dockerfile.back
+    volumes:
+      - .:/app
+    tty: True
+    stdin_open: True
+    ports:
+      - "80:80"
+    environment:
+      TZ: "Asia/Tokyo"
+
+  db:
+    image: mysql:5.7
+    container_name: mysql_container
+    volumes:
+      - ./mysql/work:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: root
+      MYSQL_ROOT_PASSWORD: passwd
+
+volumes:
+  vue_node_modules:
+
