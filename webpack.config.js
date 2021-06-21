@@ -1,12 +1,16 @@
 const path = require('path');
-const webpack = require('webpack');
+// const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require("vue-loader");
+
+const env = process.env.NODE_ENV
+const target = env === 'development'?'web':['web', 'es5']
 
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map', // デバッグしやすくする
-  entry: './src/index.js', // エントリポイント
+  entry: './src/index.js', // エントリポイント,
+  target: target,
   // 出力先(絶対パスを指定する必要がある)
   output: {
     // __dirnameはパスの先頭
@@ -14,7 +18,6 @@ module.exports = {
     filename: 'main.js',
   },
   devServer: {
-    contentBase: path.resolve(__dirname,'public'),
     open:true,
     host: '0.0.0.0',
     port: 3031,
@@ -32,6 +35,23 @@ module.exports = {
   // Loader
   module: {
     rules: [
+      {
+        test: /\.s(c|a)ss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            // Requires >= sass-loader@^8.0.0
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                indentedSyntax: true // optional
+              },
+            }
+          }
+        ]
+      },
       // Vueの中にあるcssを読み取るのに必要
       {
         test: /\.css$/,
@@ -57,7 +77,7 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'file-loader',
         options: {
-          outputPath: 'images',
+          outputPath: 'img',
         }
       }
     ]
@@ -67,6 +87,7 @@ module.exports = {
     new HtmlWebpackPlugin({ // /public/index.htmlの部分
       title:'TODO APP',
       template: path.resolve(__dirname, 'public/index.html'),
+      url:'/static/img/',
       inject: 'body',
       hash: true,
     })
