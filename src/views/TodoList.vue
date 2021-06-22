@@ -10,6 +10,14 @@
                       <v-list-item-title>
                         <v-text-field v-model="newTodo" id="newTodo" name="newTodo" label="Type your task" @keyup.enter="addTodo" />
                       </v-list-item-title>
+                      <v-btn
+                        color="orange"
+                        dark
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        Register
+                      </v-btn>
                     </v-list-item-content>
               </v-list-item>
             </v-card>
