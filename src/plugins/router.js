@@ -15,18 +15,8 @@ export default new Router({
     },
     {
       path: '/create',
-      // name: 'create',
+      name: 'Create',
       component: CreateTodo
-    },
-    {
-      // name: 'edit',
-      path: '/edit',
-      component: CreateTodo,
-      props(route) {
-        return {
-          ...route.params
-        }
-      }
     }
   ]
 })
