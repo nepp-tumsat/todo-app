@@ -2,7 +2,33 @@
   <v-app>
       <v-container class="mt-12">
         <v-row class="mt-6" justify="center">
-          <v-data-table :headers="tableHeaders" :items="tableItems"></v-data-table>
+          <v-list subheader two-line flat>
+            <v-subheader class="subheading" v-if="todos.length == 0">You have 0 Tasks, add some</v-subheader>
+            <v-subheader class="subheading" v-else="todos.length == 1">Your Tasks</v-subheader>
+
+            <v-list-item-group>
+              <v-list-item v-for="(todo, i) in todos">
+                <template #default="{ active, toggle }">
+                  <v-list-item-action>
+
+                    <v-checkbox v-model="active" @click="toggle"></v-checkbox>
+                  </v-list-item-action>
+
+                  <v-list-item-content>
+                    <v-list-item-title :class="{
+                      done: active
+                      }">{{ todo.title | capitalize }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>Added on: {{ date }}{{ ord }} {{ day }} {{ year }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-btn fab ripple small color="red" v-if="active" @click="removeTodo(i)">
+                    <v-icon class="white--text">mdi-close</v-icon>
+                  </v-btn>
+                </template>
+              </v-list-item>
+            </v-list-item-group>
+
+          </v-list>
         </v-row>
         <v-row class="mt-6" justify="center">
           <v-btn to="/create" active-class="blue">
@@ -95,19 +121,59 @@
 <script>
 export default {
   name: 'TodoList',
+  // createdでデータベースを読み込んでリスティングする
   data() {
     return {
       dialog: false,
-      tableHeaders: [
-        { text: "Name", value: "name" },
-        { text: "Age", value: "age" },
-        { text: "Gender", value: "gender" }
+      day: this.todoDay(),
+      date: new Date().getDate(),
+      ord: this.nth(new Date().getDate()),
+      year: new Date().getFullYear(),
+      todos: [
+        {
+          title: 'Sample',
+          done: false
+        }
+
       ],
-      tableItems: [
-        { name: "Taro", age: 20, gender: "Male" },
-        { name: "Hanako", age: 18, gender: "Female" },
-        { name: "Ichiro", age: 25, gender: "Male" }
-      ]
+    }
+  },
+  methods: {
+    removeTodo() {
+      console.log('REMOVE TODO!')
+    },
+    todoDay() {
+      const d = new Date();
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ];
+      return days[d.getDay()];
+    },
+    nth(d) {
+      if (d > 3 && d < 21) return "th";
+      switch (d % 10) {
+        case 1:
+          return "st";
+        case 2:
+          return "nd";
+        case 3:
+          return "rd";
+        default:
+          return "th";
+      }
+    }
+  },
+  filters: {
+    capitalize: function (value) {
+      if (!value) return "";
+      value = value.toString();
+      return value.charAt(0).toUpperCase() + value.slice(1);
     }
   }
 }
