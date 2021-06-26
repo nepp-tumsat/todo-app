@@ -46,7 +46,7 @@ services:
     volumes:
       - ./db/mysql/conf.d:/etc/mysql/conf.d
       - ./db/mysql/sql:/docker-entrypoint-initdb.d
-
+      - ./db/mysql/data:/var/lib/mysql
 volumes:
   vue_node_modules:
 
