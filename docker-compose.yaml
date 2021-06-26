@@ -29,17 +29,23 @@ services:
       - "80:80"
     environment:
       TZ: "Asia/Tokyo"
+    depends_on:
+      - mysql
 
-  db:
+  mysql:
     image: mysql:5.7
-    container_name: mysql_container
-    volumes:
-      - ./mysql/work:/var/lib/mysql
-    ports:
-      - '3306:3306'
+    container_name: mysql_host
     environment:
-      MYSQL_DATABASE: root
-      MYSQL_ROOT_PASSWORD: passwd
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: todo_app
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/mysql/conf.d:/etc/mysql/conf.d
+      - ./db/mysql/sql:/docker-entrypoint-initdb.d
 
 volumes:
   vue_node_modules:
