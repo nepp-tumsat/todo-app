@@ -2,6 +2,7 @@
 node_modules
 /dist
 /db/mysql/data
+__pycache__
 
 
 # local env files
