@@ -2,7 +2,7 @@
 from flask import Flask
 
 from backend.database import init_db
-
+import backend.models
 
 def create_app():
     app = Flask(__name__)
