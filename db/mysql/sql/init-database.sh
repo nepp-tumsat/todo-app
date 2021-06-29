@@ -1,1 +1,0 @@
-mysql -u user -ppassword todo_app < "/docker-entrypoint-initdb.d/ddl.sql"
