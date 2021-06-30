@@ -6,7 +6,7 @@ import backend.models
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('backend.config.Config123')
+    app.config.from_object('backend.config.Config')
 
     init_db(app)
 
