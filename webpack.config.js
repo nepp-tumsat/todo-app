@@ -23,14 +23,14 @@ module.exports = {
     port: 3031,
     hot: true,
     watchOptions: {
-        poll: 1000
+        poll: 1000,
+        ignored: ['/node_modules/']
+    },
+    historyApiFallback: {
+      rewrites: [{ from: /^\/*/, to: '/index.html' }]
     },
     // webpackの扱わないファイル(HTMLや画像など)が入っているディレクトリ
     contentBase: path.resolve(__dirname, "public")
-  },
-  watch: true, // ファイル変更を検知して自動コンパイルする
-  watchOptions: {
-    ignored: '/node_modules/'
   },
   // Loader
   module: {
