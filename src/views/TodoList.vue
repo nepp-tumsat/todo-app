@@ -119,6 +119,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'TodoList',
   // createdでデータベースを読み込んでリスティングする
@@ -141,6 +142,7 @@ export default {
   methods: {
     removeTodo() {
       console.log('REMOVE TODO!')
+      this.todos = []
     },
     todoDay() {
       const d = new Date();
@@ -175,6 +177,14 @@ export default {
       value = value.toString();
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
+  },
+  created: function() {
+    axios.get(process.env.FLASK_HOST + '/list')
+    .then(res => {
+      console.log('')
+    }).catch(err => {
+      console.log('err')
+    })
   }
 }
 </script>>

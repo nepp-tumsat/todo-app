@@ -7,11 +7,11 @@
       class="headline">
     TODOリスト
     </v-app-bar>
-    <v-content>
+    <v-main>
       <keep-alive include='TodoList'>
         <router-view></router-view>
       </keep-alive>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
