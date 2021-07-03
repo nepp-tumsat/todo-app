@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import TodoList from "../views/TodoList.vue";
+import Todo from "../views/Todo.vue";
 import CreateTodo from "../views/CreateTodo.vue";
 
 Vue.use(Router)
@@ -10,8 +10,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'TodoList',
-      component: TodoList
+      name: 'Todo',
+      component: Todo
     },
     {
       path: '/create',
