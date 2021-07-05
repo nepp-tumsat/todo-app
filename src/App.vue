@@ -83,7 +83,7 @@
       drawer: false, // navigate barの有無を決める
       items: [
         { title: ' Todo', icon: 'mdi-format-list-checks', to: '/' },
-        { title: 'About', icon: 'mdi-help-box', to: '/create' },
+        { title: 'About', icon: 'mdi-help-box', to: '/about' },
       ],
     }),
   }
