@@ -4,8 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require("vue-loader");
 
 const env = process.env.NODE_ENV
-const target = env === 'development'?'web':['web', 'es5']
-
+const target = env === 'development'? 'web': ['web', 'es5']
 const ignore_env_vars = new Set([
   'YARN_VERSION',
   'HOSTNAME',
@@ -41,6 +40,7 @@ module.exports = {
     host: '0.0.0.0',
     port: 3031,
     hot: true,
+    contentBase: path.resolve(__dirname, 'public/'), // サーバーの起点ディレクトリ
     watchOptions: {
         poll: 1000,
         ignored: ['/node_modules/']
