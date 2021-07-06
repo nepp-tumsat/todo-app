@@ -125,7 +125,8 @@ export default {
   created: function() {
     axios.get(process.env.FLASK_HOST + '/list')
     .then(res => {
-      console.log('')
+      console.log('res', res)
+      console.log('success')
     }).catch(err => {
       console.log('err')
     })

@@ -1,5 +1,5 @@
 """flask appの初期化を行い、flask appオブジェクトの実体を持つ"""
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from backend.database import init_db
@@ -22,4 +22,7 @@ app = create_app()
 CORS(app, resources={r'/*': {'origins': '*'}})
 @app.route('/list', methods=['GET'])
 def list_todo():
-    return jsonify('pong!')
+    response_object = {'status': 'success'}
+    # db処理
+    print('request:', request)
+    return jsonify(response_object)
