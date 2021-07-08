@@ -8,8 +8,9 @@
       outlined
       label="Add Task"
       append-icon="mdi-plus"
-      hide-details
       clearable
+      :rules="rules.task"
+      required
     ></v-text-field>
     <v-list
       class="pt-0"
@@ -85,19 +86,23 @@ export default {
       year: new Date().getFullYear(),
       newTaskTitle: '',
       tasks: [],
-      snackbar: false
+      snackbar: false,
+      rules: {
+        task: [val => (val || '').length > 0 || 'This field is required']
+      }
     }
   },
   methods: {
     addTask() {
+      if (this.newTaskTitle.length < 1) {
+        return
+      }
       let newTask = {
         id: Date.now(),
         title: this.newTaskTitle,
         done: false
       };
       this.tasks.push(newTask);
-      this.newTaskTitle = ''
-      this.snackbar = true;
     },
     doneTask(id) {
       let task = this.tasks.filter(task => task.id === id)[0]
