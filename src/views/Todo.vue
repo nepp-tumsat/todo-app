@@ -50,8 +50,24 @@
         </v-list-item>
         <v-divider></v-divider>
       </div>
-
     </v-list>
+    <v-snackbar
+      v-model="snackbar"
+      multi-line
+      timeout=1000
+    >
+      Add New Task!!
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="pink"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>>
 
@@ -69,6 +85,7 @@ export default {
       year: new Date().getFullYear(),
       newTaskTitle: '',
       tasks: [],
+      snackbar: false
     }
   },
   methods: {
@@ -80,6 +97,7 @@ export default {
       };
       this.tasks.push(newTask);
       this.newTaskTitle = ''
+      this.snackbar = true;
     },
     doneTask(id) {
       let task = this.tasks.filter(task => task.id === id)[0]
@@ -125,8 +143,10 @@ export default {
   created: function() {
     axios.get(process.env.FLASK_HOST + '/list')
     .then(res => {
+      console.log(this.tasks)
       console.log('res', res)
-      console.log('success')
+      // tasksは配列
+      // this.tasks = res.data.tasks
     }).catch(err => {
       console.log('err')
     })
