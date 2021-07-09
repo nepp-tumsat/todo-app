@@ -1,10 +1,28 @@
 const path = require('path');
-// const webpack = require('webpack');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require("vue-loader");
 
 const env = process.env.NODE_ENV
-const target = env === 'development'?'web':['web', 'es5']
+const target = env === 'development'? 'web': ['web', 'es5']
+const ignore_env_vars = new Set([
+  'YARN_VERSION',
+  'HOSTNAME',
+  'PWD',
+  'HOME',
+  'NODE_VERSION',
+  'TERM',
+  'SHLVL',
+  'PATH',
+  '_'
+]);
+
+let env_vars = [];
+Object.keys(process.env).forEach(key => {
+  if(!ignore_env_vars.has(key)){
+    env_vars.push(key);
+  }
+});
 
 module.exports = {
   mode: 'development',
@@ -15,22 +33,23 @@ module.exports = {
   output: {
     // __dirnameはパスの先頭
     path: path.resolve(__dirname, "dist"), // 絶対パス -> 文字列結合しないのはOSによって/が違うから
-    filename: 'main.js',
+    filename: '[name].bundle.js',
   },
   devServer: {
     open:true,
     host: '0.0.0.0',
     port: 3031,
     hot: true,
+    contentBase: path.resolve(__dirname, 'public/'), // サーバーの起点ディレクトリ
     watchOptions: {
-        poll: 1000
+        poll: 1000,
+        ignored: ['/node_modules/']
+    },
+    historyApiFallback: {
+      rewrites: [{ from: /^\/*/, to: '/index.html' }]
     },
     // webpackの扱わないファイル(HTMLや画像など)が入っているディレクトリ
     contentBase: path.resolve(__dirname, "public")
-  },
-  watch: true, // ファイル変更を検知して自動コンパイルする
-  watchOptions: {
-    ignored: '/node_modules/'
   },
   // Loader
   module: {
@@ -90,7 +109,8 @@ module.exports = {
       url:'/static/img/',
       inject: 'body',
       hash: true,
-    })
+    }),
+    new webpack.EnvironmentPlugin(env_vars)
   ],
   // resolve: {
   //   alias: {
