@@ -68,22 +68,25 @@
         <v-divider></v-divider>
       </div>
     </v-list>
-    <v-snackbar
-      v-model="snackbar"
-      multi-line
-      timeout=1000
-    >
-      Add New Task!!
-      <template>
-        <v-btn
-          color="pink"
-          text
-          @click="snackbar = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+    <div>
+      <v-snackbar
+        v-model="snackbar"
+        timeout=1000
+        multi-line
+      >
+        Add New Task!!
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            color="pink"
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </div>
 </template>>
 
