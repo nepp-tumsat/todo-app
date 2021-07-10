@@ -8,8 +8,9 @@
       outlined
       label="Add Task"
       append-icon="mdi-plus"
-      hide-details
       clearable
+      :rules="rules.task"
+      required
     ></v-text-field>
     <v-list
       class="pt-0"
@@ -39,35 +40,53 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn
-                @click.stop="deleteTask(task.id)"
-                icon
-              >
-                <v-icon color="primary lighten-1">mdi-delete</v-icon>
-              </v-btn>
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    v-on="on"
+                    icon
+                  >
+                    <v-icon color="primary lighten-1">
+                      mdi-dots-horizontal-circle
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item
+                    v-for="(item, index) in items"
+                    :key="index"
+                  >
+                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
           </v-list-item-action>
           </template>
         </v-list-item>
         <v-divider></v-divider>
       </div>
     </v-list>
-    <v-snackbar
-      v-model="snackbar"
-      multi-line
-      timeout=1000
-    >
-      Add New Task!!
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          color="pink"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+    <div>
+      <v-snackbar
+        v-model="snackbar"
+        timeout=1000
+        multi-line
+      >
+        Add New Task!!
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            color="pink"
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </div>
 </template>>
 
@@ -85,11 +104,23 @@ export default {
       year: new Date().getFullYear(),
       newTaskTitle: '',
       tasks: [],
-      snackbar: false
+      snackbar: false,
+      rules: {
+        task: [val => (val || '').length > 0 || 'This field is required']
+      },
+      items: [
+        { title: 'Edit' },
+        { title: 'Add Subtask' },
+        { title: 'Delete' },
+        { title: 'Sort' },
+      ],
     }
   },
   methods: {
     addTask() {
+      if (this.newTaskTitle.length < 1) {
+        return
+      }
       let newTask = {
         id: Date.now(),
         title: this.newTaskTitle,
@@ -149,6 +180,12 @@ export default {
       // this.tasks = res.data.tasks
     }).catch(err => {
       console.log('err')
+      let newTask = {
+        id: Date.now(),
+        title: "sample",
+        done: false
+      };
+      this.tasks.push(newTask);
     })
   }
 }
