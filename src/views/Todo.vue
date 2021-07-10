@@ -40,12 +40,28 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn
-                @click.stop="deleteTask(task.id)"
-                icon
-              >
-                <v-icon color="primary lighten-1">mdi-delete</v-icon>
-              </v-btn>
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    v-on="on"
+                    icon
+                  >
+                    <v-icon color="primary lighten-1">
+                      mdi-dots-horizontal-circle
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item
+                    v-for="(item, index) in items"
+                    :key="index"
+                  >
+                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
           </v-list-item-action>
           </template>
         </v-list-item>
@@ -58,11 +74,10 @@
       timeout=1000
     >
       Add New Task!!
-      <template v-slot:action="{ attrs }">
+      <template>
         <v-btn
           color="pink"
           text
-          v-bind="attrs"
           @click="snackbar = false"
         >
           Close
@@ -89,7 +104,13 @@ export default {
       snackbar: false,
       rules: {
         task: [val => (val || '').length > 0 || 'This field is required']
-      }
+      },
+      items: [
+        { title: 'Edit' },
+        { title: 'Add Subtask' },
+        { title: 'Delete' },
+        { title: 'Sort' },
+      ],
     }
   },
   methods: {
@@ -103,6 +124,8 @@ export default {
         done: false
       };
       this.tasks.push(newTask);
+      this.newTaskTitle = ''
+      this.snackbar = true;
     },
     doneTask(id) {
       let task = this.tasks.filter(task => task.id === id)[0]
@@ -154,6 +177,12 @@ export default {
       // this.tasks = res.data.tasks
     }).catch(err => {
       console.log('err')
+      let newTask = {
+        id: Date.now(),
+        title: "sample",
+        done: false
+      };
+      this.tasks.push(newTask);
     })
   }
 }
