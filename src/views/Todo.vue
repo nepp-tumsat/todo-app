@@ -1,5 +1,10 @@
 <template>
   <div class='home'>
+    <v-btn
+      @click="addUser"
+    >
+      user追加
+    </v-btn>
     <v-text-field
       v-model="newTaskTitle"
       @click:append="addTask"
@@ -20,6 +25,9 @@
         v-for="task in tasks"
         :key="task.id"
       >
+      <!-- <EditTask v-show="Open_item === 'Edit'" :item="item" @close="closeDialog"/>
+      <AddSubTask v-show="Open_item === 'Add Subtask'" :item="item" /> -->
+      <DeleteTask v-show="Open_item === 'Delete'" :Open_item="Open_item" :task="task" @close="closeDialog"/>
         <v-list-item
           @click="doneTask(task.id)"
           :class="{ 'blue lighten-5' : task.done }"
@@ -57,6 +65,7 @@
                   <v-list-item
                     v-for="(item, index) in items"
                     :key="index"
+                    @click="selectDialog(item.title)"
                   >
                     <v-list-item-title>{{ item.title }}</v-list-item-title>
                   </v-list-item>
@@ -68,6 +77,7 @@
         <v-divider></v-divider>
       </div>
     </v-list>
+
     <div>
       <v-snackbar
         v-model="snackbar"
@@ -88,13 +98,21 @@
       </v-snackbar>
     </div>
   </div>
-</template>>
+</template>
 
 <script>
 import axios from 'axios'
+import EditTask from '../components/Dialogs/EditTask.vue'
+import AddSubTask from '../components/Dialogs/AddSubTask.vue'
+import DeleteTask from '../components/Dialogs/DeleteTask.vue'
+
 export default {
   name: 'Todo',
-  // createdでデータベースを読み込んでリスティングする
+  components: {
+    EditTask,
+    AddSubTask,
+    DeleteTask,
+  },
   data() {
     return {
       dialog: false,
@@ -114,9 +132,27 @@ export default {
         { title: 'Delete' },
         { title: 'Sort' },
       ],
+      Open_item: '',
+      user_id: 0,
     }
   },
   methods: {
+    addUser() {
+      axios.get(process.env.FLASK_HOST + '/adduser')
+        .then((res) => {
+          console.log(res.data.message)
+          }
+        ).catch((err) => {
+          console.log(err)
+        })
+    },
+    selectDialog(item) {
+      this.Open_item = item;
+    },
+    closeDialog() {
+      this.Open_item = ''
+
+    },
     addTask() {
       if (this.newTaskTitle.length < 1) {
         return
@@ -126,9 +162,18 @@ export default {
         title: this.newTaskTitle,
         done: false
       };
-      this.tasks.push(newTask);
-      this.newTaskTitle = ''
-      this.snackbar = true;
+      axios.post(process.env.FLASK_HOST + '/create',
+        {
+          user_id: 1,
+          task_name: this.newTaskTitle
+        }
+      ).then((res) => {
+        this.tasks.push(newTask);
+        this.newTaskTitle = ''
+        this.snackbar = true;
+      }).catch((err)=> {
+        console.log(err)
+      })
     },
     doneTask(id) {
       let task = this.tasks.filter(task => task.id === id)[0]
@@ -172,6 +217,8 @@ export default {
     }
   },
   created: function() {
+    // TODO: fix
+    this.user_id = 1
     axios.get(process.env.FLASK_HOST + '/list')
     .then(res => {
       console.log(this.tasks)
