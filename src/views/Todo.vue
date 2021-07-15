@@ -20,6 +20,9 @@
         v-for="task in tasks"
         :key="task.id"
       >
+      <!-- <EditTask v-show="Open_item === 'Edit'" :item="item" @close="closeDialog"/>
+      <AddSubTask v-show="Open_item === 'Add Subtask'" :item="item" /> -->
+      <DeleteTask v-show="Open_item === 'Delete'" :Open_item="Open_item" :task="task" @close="closeDialog"/>
         <v-list-item
           @click="doneTask(task.id)"
           :class="{ 'blue lighten-5' : task.done }"
@@ -57,6 +60,7 @@
                   <v-list-item
                     v-for="(item, index) in items"
                     :key="index"
+                    @click="selectDialog(item.title)"
                   >
                     <v-list-item-title>{{ item.title }}</v-list-item-title>
                   </v-list-item>
@@ -68,6 +72,7 @@
         <v-divider></v-divider>
       </div>
     </v-list>
+
     <div>
       <v-snackbar
         v-model="snackbar"
@@ -88,13 +93,21 @@
       </v-snackbar>
     </div>
   </div>
-</template>>
+</template>
 
 <script>
 import axios from 'axios'
+import EditTask from '../components/Dialogs/EditTask.vue'
+import AddSubTask from '../components/Dialogs/AddSubTask.vue'
+import DeleteTask from '../components/Dialogs/DeleteTask.vue'
+
 export default {
   name: 'Todo',
-  // createdでデータベースを読み込んでリスティングする
+  components: {
+    EditTask,
+    AddSubTask,
+    DeleteTask,
+  },
   data() {
     return {
       dialog: false,
@@ -114,9 +127,17 @@ export default {
         { title: 'Delete' },
         { title: 'Sort' },
       ],
+      Open_item: ''
     }
   },
   methods: {
+    selectDialog(item) {
+      this.Open_item = item;
+    },
+    closeDialog() {
+      this.Open_item = ''
+
+    },
     addTask() {
       if (this.newTaskTitle.length < 1) {
         return
