@@ -1,5 +1,10 @@
 <template>
   <div class='home'>
+    <v-btn
+      @click="addUser"
+    >
+      user追加
+    </v-btn>
     <v-text-field
       v-model="newTaskTitle"
       @click:append="addTask"
@@ -127,10 +132,20 @@ export default {
         { title: 'Delete' },
         { title: 'Sort' },
       ],
-      Open_item: ''
+      Open_item: '',
+      user_id: 0,
     }
   },
   methods: {
+    addUser() {
+      axios.get(process.env.FLASK_HOST + '/adduser')
+        .then((res) => {
+          console.log(res.data.message)
+          }
+        ).catch((err) => {
+          console.log(err)
+        })
+    },
     selectDialog(item) {
       this.Open_item = item;
     },
@@ -147,9 +162,18 @@ export default {
         title: this.newTaskTitle,
         done: false
       };
-      this.tasks.push(newTask);
-      this.newTaskTitle = ''
-      this.snackbar = true;
+      axios.post(process.env.FLASK_HOST + '/create',
+        {
+          user_id: 1,
+          task_name: this.newTaskTitle
+        }
+      ).then((res) => {
+        this.tasks.push(newTask);
+        this.newTaskTitle = ''
+        this.snackbar = true;
+      }).catch((err)=> {
+        console.log(err)
+      })
     },
     doneTask(id) {
       let task = this.tasks.filter(task => task.id === id)[0]
@@ -193,6 +217,8 @@ export default {
     }
   },
   created: function() {
+    // TODO: fix
+    this.user_id = 1
     axios.get(process.env.FLASK_HOST + '/list')
     .then(res => {
       console.log(this.tasks)
