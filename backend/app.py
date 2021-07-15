@@ -22,10 +22,17 @@ app = create_app()
 #API PATH#
 #########
 CORS(app, resources={r'/*': {'origins': '*'}})
-@app.route('/add')
-def add():
-    user1 = User(username='user1',password='pass')
+@app.route('/addtask')
+def addtask():
     task1 = Task(user_id =1,task = 'task1')
+    db.session.add(task1)
+    db.session.commit()
+
+@app.route('/adduser')
+def adduser():
+    user1 = User(id=1,username='user1',password='pass')  
+    db.session.add(user1)
+    db.session.commit()
 
 @app.route('/list', methods=['GET'])
 def list_todo():
@@ -45,8 +52,8 @@ def list_todo():
 @app.route('/create', methods=['POST'])
 def create_todo():
     new_task = Task()
-    new_task.task = request.form['task']
-    new_task.user_id = request.form['user_id']
+    new_task.task = request.form['task_name']
+    new_task.user_id = 1
     db.session.add(new_task)
     db.session.commit()
     
@@ -59,10 +66,11 @@ def create_todo():
     
     return jsonify(response_object)
 
+@app.route
+
 @app.route('/delete/<int:id>')
 def delete_todo(id):
-    destroy_task = Task.query.get(id)
-    db.session.delete(destroy_task)
+    db.session.query(Task).filter(Task.id==id).delete()
     db.session.commit()
 
     tasks = Task.query.all()
@@ -70,6 +78,20 @@ def delete_todo(id):
     for i in tasks:
         
         dict = {'id': i.id,'user_id':i.user_id,"created_at":i.created_at,"limit_at":i.limit_at,'task':i.task,"sub_tasks":i.sub_tasks}
+        response_object.append(dict)
+    
+    return jsonify(response_object)
+
+@app.route('/deleteuser/<int:id>')
+def delete_user(id):
+    db.session.query(User).filter(User.id==id).delete()
+    db.session.commit()
+
+    users = User.query.all()
+    response_object = []
+    for i in users:
+        
+        dict = {'id': i.id,'username':i.username,"password":i.password,"created_at":i.created_at,'tasks':i.tasks,"sub_tasks":i.sub_tasks}
         response_object.append(dict)
     
     return jsonify(response_object)
