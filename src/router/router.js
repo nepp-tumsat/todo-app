@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Todo from "../views/Todo.vue";
 import CreateTodo from "../views/CreateTodo.vue";
 import About from "../views/About.vue";
+import Login from "../views/Login.vue";
 
 Vue.use(Router)
 
@@ -23,6 +24,11 @@ export default new Router({
       path: '/create',
       name: 'Create',
       component: CreateTodo
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
     }
   ]
 })

@@ -1,5 +1,10 @@
 <template>
   <div class='home'>
+    <v-btn
+      @click="addUser"
+    >
+      user追加
+    </v-btn>
     <v-text-field
       v-model="newTaskTitle"
       @click:append="addTask"
@@ -8,8 +13,9 @@
       outlined
       label="Add Task"
       append-icon="mdi-plus"
-      hide-details
       clearable
+      :rules="rules.task"
+      required
     ></v-text-field>
     <v-list
       class="pt-0"
@@ -19,6 +25,9 @@
         v-for="task in tasks"
         :key="task.id"
       >
+      <!-- <EditTask v-show="Open_item === 'Edit'" :item="item" @close="closeDialog"/>
+      <AddSubTask v-show="Open_item === 'Add Subtask'" :item="item" /> -->
+      <DeleteTask v-show="Open_item === 'Delete'" :Open_item="Open_item" :task="task" @close="closeDialog"/>
         <v-list-item
           @click="doneTask(task.id)"
           :class="{ 'blue lighten-5' : task.done }"
@@ -39,43 +48,71 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn
-                @click.stop="deleteTask(task.id)"
-                icon
-              >
-                <v-icon color="primary lighten-1">mdi-delete</v-icon>
-              </v-btn>
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    v-on="on"
+                    icon
+                  >
+                    <v-icon color="primary lighten-1">
+                      mdi-dots-horizontal-circle
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item
+                    v-for="(item, index) in items"
+                    :key="index"
+                    @click="selectDialog(item.title)"
+                  >
+                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
           </v-list-item-action>
           </template>
         </v-list-item>
         <v-divider></v-divider>
       </div>
     </v-list>
-    <v-snackbar
-      v-model="snackbar"
-      multi-line
-      timeout=1000
-    >
-      Add New Task!!
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          color="pink"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+
+    <div>
+      <v-snackbar
+        v-model="snackbar"
+        timeout=1000
+        multi-line
+      >
+        Add New Task!!
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            color="pink"
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </div>
-</template>>
+</template>
 
 <script>
 import axios from 'axios'
+import EditTask from '../components/Dialogs/EditTask.vue'
+import AddSubTask from '../components/Dialogs/AddSubTask.vue'
+import DeleteTask from '../components/Dialogs/DeleteTask.vue'
+
 export default {
   name: 'Todo',
-  // createdでデータベースを読み込んでリスティングする
+  components: {
+    EditTask,
+    AddSubTask,
+    DeleteTask,
+  },
   data() {
     return {
       dialog: false,
@@ -85,19 +122,58 @@ export default {
       year: new Date().getFullYear(),
       newTaskTitle: '',
       tasks: [],
-      snackbar: false
+      snackbar: false,
+      rules: {
+        task: [val => (val || '').length > 0 || 'This field is required']
+      },
+      items: [
+        { title: 'Edit' },
+        { title: 'Add Subtask' },
+        { title: 'Delete' },
+        { title: 'Sort' },
+      ],
+      Open_item: '',
+      user_id: 0,
     }
   },
   methods: {
+    addUser() {
+      axios.get(process.env.FLASK_HOST + '/adduser')
+        .then((res) => {
+          console.log(res.data.message)
+          }
+        ).catch((err) => {
+          console.log(err)
+        })
+    },
+    selectDialog(item) {
+      this.Open_item = item;
+    },
+    closeDialog() {
+      this.Open_item = ''
+
+    },
     addTask() {
+      if (this.newTaskTitle.length < 1) {
+        return
+      }
       let newTask = {
         id: Date.now(),
         title: this.newTaskTitle,
         done: false
       };
-      this.tasks.push(newTask);
-      this.newTaskTitle = ''
-      this.snackbar = true;
+      axios.post(process.env.FLASK_HOST + '/create',
+        {
+          user_id: 1,
+          task_name: this.newTaskTitle
+        }
+      ).then((res) => {
+        this.tasks.push(newTask);
+        this.newTaskTitle = ''
+        this.snackbar = true;
+      }).catch((err)=> {
+        console.log(err)
+      })
     },
     doneTask(id) {
       let task = this.tasks.filter(task => task.id === id)[0]
@@ -141,6 +217,8 @@ export default {
     }
   },
   created: function() {
+    // TODO: fix
+    this.user_id = 1
     axios.get(process.env.FLASK_HOST + '/list')
     .then(res => {
       console.log(this.tasks)
@@ -149,6 +227,12 @@ export default {
       // this.tasks = res.data.tasks
     }).catch(err => {
       console.log('err')
+      let newTask = {
+        id: Date.now(),
+        title: "sample",
+        done: false
+      };
+      this.tasks.push(newTask);
     })
   }
 }
