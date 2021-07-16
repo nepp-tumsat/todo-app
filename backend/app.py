@@ -1,6 +1,7 @@
 """flask appの初期化を行い、flask appオブジェクトの実体を持つ"""
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from datetime import datetime
 
 from backend.database import init_db,db
 from backend.models import User, Task, Subtask
@@ -37,6 +38,7 @@ def adduser():
 
 @app.route('/list', methods=['GET'])
 def list_todo():
+    
     tasks = Task.query.all()
     response_object = []
     for i in tasks:
@@ -64,7 +66,26 @@ def create_todo():
         response_object.append(dict)
     return jsonify(response_object)
 
-@app.route
+@app.route('/edit/<int:id>', methods=['POST'])
+def edit_todo(id):
+    edit_task=Task.query.get(id)
+    new_task = Task()
+    request_dict = request.get_json()
+    edit_task.task = request_dict['task_name']
+    edit_task.created_at = datetime.now()
+    edit_task.limit_at = datetime.now()
+
+    db.session.commit()
+
+    tasks = Task.query.all()
+    response_object = []
+    for i in tasks:
+        
+        dict = {'id': i.id,'user_id':i.user_id,"created_at":i.created_at,"limit_at":i.limit_at,'task':i.task,"sub_tasks":i.sub_tasks}
+        response_object.append(dict)
+    
+    return jsonify(response_object)
+
 
 @app.route('/delete/<int:id>')
 def delete_todo(id):
