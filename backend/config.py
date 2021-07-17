@@ -17,7 +17,7 @@ class DevelopmentConfig:
 
     })
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_ECHO = True # TrueでSQLが標準出力される
 
 
 
