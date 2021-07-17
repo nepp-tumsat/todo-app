@@ -8,27 +8,27 @@ import Login from "../views/Login.vue";
 Vue.use(Router);
 
 export default new Router({
-	mode: "history",
-	routes: [
-		{
-			path: "/",
-			name: "Todo",
-			component: Todo,
-		},
-		{
-			path: "/about",
-			name: "About",
-			component: About,
-		},
-		{
-			path: "/create",
-			name: "Create",
-			component: CreateTodo,
-		},
-		{
-			path: "/login",
-			name: "Login",
-			component: Login,
-		},
-	],
+  mode: "history",
+  routes: [
+    {
+      path: "/",
+      name: "Todo",
+      component: Todo,
+    },
+    {
+      path: "/about",
+      name: "About",
+      component: About,
+    },
+    {
+      path: "/create",
+      name: "Create",
+      component: CreateTodo,
+    },
+    {
+      path: "/login",
+      name: "Login",
+      component: Login,
+    },
+  ],
 });
