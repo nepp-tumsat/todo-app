@@ -25,9 +25,15 @@
         v-for="task in tasks"
         :key="task.id"
       >
-      <!-- <EditTask v-show="Open_item === 'Edit'" :item="item" @close="closeDialog"/>
-      <AddSubTask v-show="Open_item === 'Add Subtask'" :item="item" /> -->
-      <DeleteTask v-show="Open_item === 'Delete'" :Open_item="Open_item" :task="task" @close="closeDialog"/>
+        <v-dialog
+          v-model="dialog"
+          width=400
+        >
+          <DeleteTask
+            v-show="Open_item === 'Delete'"
+            @close="closeDialog"
+          />
+        </v-dialog>
         <v-list-item
           @click="doneTask(task.id)"
           :class="{ 'blue lighten-5' : task.done }"
@@ -148,10 +154,11 @@ export default {
     },
     selectDialog(item) {
       this.Open_item = item;
+      this.dialog = true
     },
     closeDialog() {
       this.Open_item = ''
-
+      this.dialog = false
     },
     addTask() {
       if (this.newTaskTitle.length < 1) {
@@ -223,16 +230,14 @@ export default {
     .then(res => {
       console.log(this.tasks)
       console.log('res', res)
-      // tasksは配列
-      // this.tasks = res.data.tasks
-    }).catch(err => {
-      console.log('err')
       let newTask = {
         id: Date.now(),
         title: "sample",
         done: false
       };
       this.tasks.push(newTask);
+    }).catch(err => {
+      console.log('err')
     })
   }
 }
