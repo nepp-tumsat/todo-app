@@ -78,7 +78,7 @@ def edit_todo(id):
     edit_task.created_at = datetime.now()
     edit_task.limit_at = datetime.now()
 
-    db.session.commit()
+    db.a.commit()
 
     tasks = Task.query.all()
     response_object = []
