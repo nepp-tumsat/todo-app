@@ -15,9 +15,6 @@
     ></v-text-field>
     <v-list class="pt-0" flat>
       <div v-for="task in tasks" :key="task.id">
-        <v-dialog v-model="dialog" width="400">
-          <DeleteTask v-show="Open_item === 'Delete'" @close="closeDialog" />
-        </v-dialog>
         <v-list-item
           @click="doneTask(task.id)"
           :class="{ 'blue lighten-5': task.done }"
@@ -53,6 +50,15 @@
                   </v-list-item>
                 </v-list>
               </v-menu>
+            </v-list-item-action>
+            <v-list-item-action>
+              <v-dialog v-model="dialog" width="400">
+                <DeleteTask
+                  v-show="Open_item === 'Delete'"
+                  @close="closeDialog"
+                  @DelTask="onDelTask(task.id)"
+                />
+              </v-dialog>
             </v-list-item-action>
           </template>
         </v-list-item>
@@ -127,23 +133,28 @@ export default {
     closeDialog() {
       this.Open_item = "";
       this.dialog = false;
+      console.log("close dialog");
     },
     addTask() {
       if (this.newTaskTitle.length < 1) {
         return;
       }
-      let newTask = {
-        id: Date.now(),
-        title: this.newTaskTitle,
-        done: false,
-      };
+      // let newTask = {
+      //   id: Date.now(),
+      //   title: this.newTaskTitle,
+      //   done: false
+      // };
       axios
         .post(process.env.FLASK_HOST + "/create", {
           user_id: 1,
           task_name: this.newTaskTitle,
         })
         .then((res) => {
-          this.tasks.push(newTask);
+          console.log("create_res", res);
+          // let newTask = {
+          //   id:
+          // }
+          // this.tasks.push(newTask);
           this.newTaskTitle = "";
           this.snackbar = true;
         })
@@ -155,8 +166,12 @@ export default {
       let task = this.tasks.filter((task) => task.id === id)[0];
       task.done = !task.done;
     },
-    deleteTask(id) {
+    onDelTask(id) {
+      // TODO: API接続
+      console.log("task id", id);
       this.tasks = this.tasks.filter((task) => task.id !== id);
+      this.Open_item = "";
+      this.dialog = false;
     },
     todoDay() {
       const d = new Date();
