@@ -57,14 +57,17 @@ def create_todo():
     new_task.task = request_dict['task_name']
     new_task.user_id = 1
     db.session.add(new_task)
-    db.session.commit()
+    db.session.commit() # ここでidが確定する
 
-    tasks = Task.query.all()
-    response_object = []
-    for i in tasks:
-        dict = {'id': i.id,'user_id':i.user_id,"created_at":i.created_at,"limit_at":i.limit_at,'task':i.task,"sub_tasks":i.sub_tasks}
-        response_object.append(dict)
-    return jsonify(response_object)
+    res_obj = {
+      'id': new_task.id,
+      'user_id': new_task.user_id,
+      'created_at': new_task.created_at,
+      'limit_at': new_task.limit_at,
+      'task': new_task.task,
+      'sub_tasks': new_task.sub_tasks
+    }
+    return jsonify(res_obj)
 
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_todo(id):
