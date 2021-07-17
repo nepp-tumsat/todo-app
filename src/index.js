@@ -8,8 +8,8 @@ import store from "./store";
 Vue.config.productionTip = false;
 
 new Vue({
-	vuetify,
-	router,
-	store,
-	render: (h) => h(App), // templateレンダリング
+  vuetify,
+  router,
+  store,
+  render: (h) => h(App), // templateレンダリング
 }).$mount("#app"); // htmlにappとしてマウントする

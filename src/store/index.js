@@ -4,14 +4,14 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-	state: {
-		loggedIn: false,
-	},
-	mutations: {
-		increment(state) {
-			state.count++;
-		},
-	},
+  state: {
+    loggedIn: false,
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
+    },
+  },
 });
 
 store.commit("increment");
