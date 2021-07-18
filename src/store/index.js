@@ -7,11 +7,6 @@ const store = new Vuex.Store({
   state: {
     loggedIn: false,
   },
-  mutations: {
-    increment(state) {
-      state.count++;
-    },
-  },
 });
 
 store.commit("increment");

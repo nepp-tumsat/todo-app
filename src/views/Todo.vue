@@ -15,9 +15,6 @@
     ></v-text-field>
     <v-list class="pt-0" flat>
       <div v-for="task in tasks" :key="task.id">
-        <v-dialog v-model="dialog" width="400">
-          <DeleteTask v-show="Open_item === 'Delete'" @close="closeDialog" />
-        </v-dialog>
         <v-list-item
           @click="doneTask(task.id)"
           :class="{ 'blue lighten-5': task.done }"
@@ -44,13 +41,11 @@
                   </v-btn>
                 </template>
                 <v-list>
-                  <v-list-item
-                    v-for="(item, index) in items"
-                    :key="index"
-                    @click="selectDialog(item.title)"
-                  >
-                    <v-list-item-title>{{ item.title }}</v-list-item-title>
-                  </v-list-item>
+                  <div v-for="menu in menus" :key="menu.title">
+                    <v-list-item @click="selectDialog(menu, task.id)">
+                      <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                    </v-list-item>
+                  </div>
                 </v-list>
               </v-menu>
             </v-list-item-action>
@@ -59,7 +54,13 @@
         <v-divider></v-divider>
       </div>
     </v-list>
-
+    <v-dialog v-model="dialog" width="400">
+      <delete-task
+        v-show="Open_menu === 'Delete'"
+        @close="closeDialog"
+        @delete="onDelete"
+      />
+    </v-dialog>
     <div>
       <v-snackbar v-model="snackbar" timeout="1000" multi-line>
         Add New Task!!
@@ -99,13 +100,14 @@ export default {
       rules: {
         task: [(val) => (val || "").length > 0 || "This field is required"],
       },
-      items: [
+      menus: [
         { title: "Edit" },
         { title: "Add Subtask" },
         { title: "Delete" },
         { title: "Sort" },
       ],
-      Open_item: "",
+      Open_menu: "",
+      select_task_id: 0,
       user_id: 0,
     };
   },
@@ -120,43 +122,49 @@ export default {
           console.log(err);
         });
     },
-    selectDialog(item) {
-      this.Open_item = item;
+    selectDialog(menu, task_id) {
+      this.select_task_id = task_id;
+      this.Open_menu = menu.title;
       this.dialog = true;
     },
     closeDialog() {
       this.Open_item = "";
       this.dialog = false;
+      console.log("close dialog");
     },
     addTask() {
       if (this.newTaskTitle.length < 1) {
         return;
       }
-      let newTask = {
-        id: Date.now(),
-        title: this.newTaskTitle,
-        done: false,
-      };
       axios
         .post(process.env.FLASK_HOST + "/create", {
           user_id: 1,
           task_name: this.newTaskTitle,
         })
         .then((res) => {
-          this.tasks.push(newTask);
+          const task_info = res.data;
+          this.tasks.push({
+            id: task_info.id,
+            title: task_info.task,
+            done: false,
+          });
           this.newTaskTitle = "";
           this.snackbar = true;
         })
         .catch((err) => {
-          console.log(err);
+          console.log("err", err);
         });
     },
-    doneTask(id) {
-      let task = this.tasks.filter((task) => task.id === id)[0];
+    doneTask(task_id) {
+      let task = this.tasks.filter((task) => task.id === task_id)[0];
       task.done = !task.done;
     },
-    deleteTask(id) {
-      this.tasks = this.tasks.filter((task) => task.id !== id);
+    onDelete() {
+      // TODO: API接続
+      this.tasks = this.tasks.filter((task) => task.id !== this.select_task_id);
+      this.Open_item = "";
+      this.dialog = false;
+      this.select_task_id = 0;
     },
     todoDay() {
       const d = new Date();
@@ -198,17 +206,17 @@ export default {
     axios
       .get(process.env.FLASK_HOST + "/list")
       .then((res) => {
+        this.tasks = res.data.map(function (task) {
+          return {
+            id: task.id,
+            title: task.task,
+            done: false,
+          };
+        });
         console.log(this.tasks);
-        console.log("res", res);
-        let newTask = {
-          id: Date.now(),
-          title: "sample",
-          done: false,
-        };
-        this.tasks.push(newTask);
       })
       .catch((err) => {
-        console.log("err");
+        console.log("err", err);
       });
   },
 };

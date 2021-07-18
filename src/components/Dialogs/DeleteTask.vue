@@ -7,7 +7,7 @@
       <v-btn color="green darken-1" text @click="$emit('close')">
         キャンセル
       </v-btn>
-      <v-btn color="green darken-1" textx @click="$emit('close')"> 削除 </v-btn>
+      <v-btn color="green darken-1" text @click="$emit('delete')"> 削除 </v-btn>
     </v-card-actions>
   </v-card>
 </template>
