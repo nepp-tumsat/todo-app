@@ -41,31 +41,26 @@
                   </v-btn>
                 </template>
                 <v-list>
-                  <v-list-item
-                    v-for="(item, index) in items"
-                    :key="index"
-                    @click="selectDialog(item.title)"
-                  >
-                    <v-list-item-title>{{ item.title }}</v-list-item-title>
-                  </v-list-item>
+                  <div v-for="menu in menus" :key="menu.title">
+                    <v-list-item @click="selectDialog(menu, task.id)">
+                      <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                    </v-list-item>
+                  </div>
                 </v-list>
               </v-menu>
-            </v-list-item-action>
-            <v-list-item-action>
-              <v-dialog v-model="dialog" width="400">
-                <DeleteTask
-                  v-show="Open_item === 'Delete'"
-                  @close="closeDialog"
-                  @DelTask="onDelTask(task.id)"
-                />
-              </v-dialog>
             </v-list-item-action>
           </template>
         </v-list-item>
         <v-divider></v-divider>
       </div>
     </v-list>
-
+    <v-dialog v-model="dialog" width="400">
+      <delete-task
+        v-show="Open_menu === 'Delete'"
+        @close="closeDialog"
+        @delete="onDelete"
+      />
+    </v-dialog>
     <div>
       <v-snackbar v-model="snackbar" timeout="1000" multi-line>
         Add New Task!!
@@ -105,13 +100,14 @@ export default {
       rules: {
         task: [(val) => (val || "").length > 0 || "This field is required"],
       },
-      items: [
+      menus: [
         { title: "Edit" },
         { title: "Add Subtask" },
         { title: "Delete" },
         { title: "Sort" },
       ],
-      Open_item: "",
+      Open_menu: "",
+      select_task_id: 0,
       user_id: 0,
     };
   },
@@ -126,8 +122,9 @@ export default {
           console.log(err);
         });
     },
-    selectDialog(item) {
-      this.Open_item = item;
+    selectDialog(menu, task_id) {
+      this.select_task_id = task_id;
+      this.Open_menu = menu.title;
       this.dialog = true;
     },
     closeDialog() {
@@ -158,16 +155,16 @@ export default {
           console.log("err", err);
         });
     },
-    doneTask(id) {
-      let task = this.tasks.filter((task) => task.id === id)[0];
+    doneTask(task_id) {
+      let task = this.tasks.filter((task) => task.id === task_id)[0];
       task.done = !task.done;
     },
-    onDelTask(id) {
+    onDelete() {
       // TODO: API接続
-      console.log("task id", id);
-      this.tasks = this.tasks.filter((task) => task.id !== id);
+      this.tasks = this.tasks.filter((task) => task.id !== this.select_task_id);
       this.Open_item = "";
       this.dialog = false;
+      this.select_task_id = 0;
     },
     todoDay() {
       const d = new Date();
