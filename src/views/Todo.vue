@@ -139,27 +139,23 @@ export default {
       if (this.newTaskTitle.length < 1) {
         return;
       }
-      // let newTask = {
-      //   id: Date.now(),
-      //   title: this.newTaskTitle,
-      //   done: false
-      // };
       axios
         .post(process.env.FLASK_HOST + "/create", {
           user_id: 1,
           task_name: this.newTaskTitle,
         })
         .then((res) => {
-          console.log("create_res", res);
-          // let newTask = {
-          //   id:
-          // }
-          // this.tasks.push(newTask);
+          const task_info = res.data;
+          this.tasks.push({
+            id: task_info.id,
+            title: task_info.task,
+            done: false,
+          });
           this.newTaskTitle = "";
           this.snackbar = true;
         })
         .catch((err) => {
-          console.log(err);
+          console.log("err", err);
         });
     },
     doneTask(id) {
@@ -213,17 +209,17 @@ export default {
     axios
       .get(process.env.FLASK_HOST + "/list")
       .then((res) => {
+        this.tasks = res.data.map(function (task) {
+          return {
+            id: task.id,
+            title: task.task,
+            done: false,
+          };
+        });
         console.log(this.tasks);
-        console.log("res", res);
-        let newTask = {
-          id: Date.now(),
-          title: "sample",
-          done: false,
-        };
-        this.tasks.push(newTask);
       })
       .catch((err) => {
-        console.log("err");
+        console.log("err", err);
       });
   },
 };
