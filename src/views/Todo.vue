@@ -4,14 +4,12 @@
     <v-text-field
       v-model="newTaskTitle"
       @click:append="addTask"
-      @keyup.enter="addTask"
+      @keydown.enter="addTask"
       class="pa-3"
       outlined
       label="Add Task"
       append-icon="mdi-plus"
       clearable
-      :rules="rules.task"
-      required
     ></v-text-field>
     <v-list class="pt-0" flat>
       <div v-for="task in tasks" :key="task.id">
@@ -42,7 +40,9 @@
                 </template>
                 <v-list>
                   <div v-for="menu in menus" :key="menu.title">
-                    <v-list-item @click="selectDialog(menu, task.id)">
+                    <v-list-item
+                      @click="selectDialog(menu, task.title, task.id)"
+                    >
                       <v-list-item-title>{{ menu.title }}</v-list-item-title>
                     </v-list-item>
                   </div>
@@ -54,9 +54,18 @@
         <v-divider></v-divider>
       </div>
     </v-list>
-    <v-dialog v-model="dialog" width="400">
+    <v-dialog v-model="dialog" width="unset">
+      <!-- <edit-task v-show="Open_menu === 'Edit'" @close="closeDialog" /> -->
+      <add-subtask
+        v-show="Open_menu === 'Add Subtask'"
+        :sub_tasks="sub_tasks"
+        :task_id="select_task_id"
+        @close="closeDialog"
+        @addsave="onAddSave"
+      />
       <delete-task
         v-show="Open_menu === 'Delete'"
+        :task_title="select_task_title"
         @close="closeDialog"
         @delete="onDelete"
       />
@@ -77,14 +86,14 @@
 <script>
 import axios from "axios";
 import EditTask from "../components/Dialogs/EditTask.vue";
-import AddSubTask from "../components/Dialogs/AddSubTask.vue";
+import AddSubtask from "../components/Dialogs/AddSubtask.vue";
 import DeleteTask from "../components/Dialogs/DeleteTask.vue";
 
 export default {
   name: "Todo",
   components: {
     EditTask,
-    AddSubTask,
+    AddSubtask,
     DeleteTask,
   },
   data() {
@@ -96,10 +105,8 @@ export default {
       year: new Date().getFullYear(),
       newTaskTitle: "",
       tasks: [],
+      sub_tasks: {},
       snackbar: false,
-      rules: {
-        task: [(val) => (val || "").length > 0 || "This field is required"],
-      },
       menus: [
         { title: "Edit" },
         { title: "Add Subtask" },
@@ -108,7 +115,8 @@ export default {
       ],
       Open_menu: "",
       select_task_id: 0,
-      user_id: 0,
+      select_task_title: "",
+      user_id: 1,
     };
   },
   methods: {
@@ -122,20 +130,24 @@ export default {
           console.log(err);
         });
     },
-    selectDialog(menu, task_id) {
+    selectDialog(menu, task_title, task_id) {
+      this.select_task_title = task_title;
       this.select_task_id = task_id;
       this.Open_menu = menu.title;
       this.dialog = true;
+      console.log(this.Open_menu);
     },
     closeDialog() {
-      this.Open_item = "";
+      this.Open_menu = "";
       this.dialog = false;
       console.log("close dialog");
     },
     addTask() {
       if (this.newTaskTitle.length < 1) {
+        alert("タスク名を入力してください");
         return;
       }
+      if (event.keyCode !== 13) return;
       axios
         .post(process.env.FLASK_HOST + "/create", {
           user_id: 1,
@@ -162,10 +174,12 @@ export default {
     onDelete() {
       // TODO: API接続
       this.tasks = this.tasks.filter((task) => task.id !== this.select_task_id);
-      this.Open_item = "";
+      this.Open_menu = "";
       this.dialog = false;
       this.select_task_id = 0;
     },
+    onAddSave() {},
+    onEditSave() {},
     todoDay() {
       const d = new Date();
       const days = [
@@ -202,7 +216,6 @@ export default {
   },
   created: function () {
     // TODO: fix
-    this.user_id = 1;
     axios
       .get(process.env.FLASK_HOST + "/list")
       .then((res) => {
@@ -218,6 +231,22 @@ export default {
       .catch((err) => {
         console.log("err", err);
       });
+
+    // subtask
+    this.sub_tasks = {
+      1: [
+        {
+          id: 1,
+          title: "sub_task1",
+          done: false,
+        },
+      ],
+    };
+    // axios.get(process.env.FLASK_HOST + "/subtask").then((res) => {
+    // res = {task_id: [sub_task1, sub_task2, ...]}
+    // this.sub_tasks = {'1':[{}, {},]}
+    // Object.keys(res.data).forEach()
+    // });
   },
 };
 </script>
