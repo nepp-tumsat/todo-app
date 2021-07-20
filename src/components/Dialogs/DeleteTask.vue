@@ -2,7 +2,7 @@
   <v-card max-width="400">
     <v-card-title></v-card-title>
     <v-card-text>
-      タスク「{{ task_title }}」 を削除してよろしいですか？
+      タスク「{{ task.title }}」 を削除してよろしいですか？
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
@@ -18,8 +18,8 @@
 export default {
   name: "DeleteTask",
   props: {
-    task_title: {
-      type: String,
+    task: {
+      type: Object,
     },
   },
 };

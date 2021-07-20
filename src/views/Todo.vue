@@ -40,9 +40,7 @@
                 </template>
                 <v-list>
                   <div v-for="menu in menus" :key="menu.title">
-                    <v-list-item
-                      @click="selectDialog(menu, task.title, task.id)"
-                    >
+                    <v-list-item @click="selectDialog(menu, task)">
                       <v-list-item-title>{{ menu.title }}</v-list-item-title>
                     </v-list-item>
                   </div>
@@ -58,14 +56,13 @@
       <!-- <edit-task v-show="Open_menu === 'Edit'" @close="closeDialog" /> -->
       <add-subtask
         v-show="Open_menu === 'Add Subtask'"
-        :sub_tasks="sub_tasks"
-        :task_id="select_task_id"
+        :task="selected_task"
         @close="closeDialog"
         @addsave="onAddSave"
       />
       <delete-task
         v-show="Open_menu === 'Delete'"
-        :task_title="select_task_title"
+        :task="selected_task"
         @close="closeDialog"
         @delete="onDelete"
       />
@@ -114,8 +111,7 @@ export default {
         { title: "Sort" },
       ],
       Open_menu: "",
-      select_task_id: 0,
-      select_task_title: "",
+      selected_task: {},
       user_id: 1,
     };
   },
@@ -130,16 +126,17 @@ export default {
           console.log(err);
         });
     },
-    selectDialog(menu, task_title, task_id) {
-      this.select_task_title = task_title;
-      this.select_task_id = task_id;
+    selectDialog(menu, task) {
+      this.selected_task = task;
       this.Open_menu = menu.title;
       this.dialog = true;
       console.log(this.Open_menu);
+      console.log(this.selected_task);
     },
     closeDialog() {
       this.Open_menu = "";
       this.dialog = false;
+      this.selected_task = {};
       console.log("close dialog");
     },
     addTask() {
@@ -173,10 +170,12 @@ export default {
     },
     onDelete() {
       // TODO: API接続
-      this.tasks = this.tasks.filter((task) => task.id !== this.select_task_id);
+      this.tasks = this.tasks.filter(
+        (task) => task.id !== this.selected_task.id
+      );
       this.Open_menu = "";
       this.dialog = false;
-      this.select_task_id = 0;
+      this.selected_task = {};
     },
     onAddSave() {},
     onEditSave() {},
