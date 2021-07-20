@@ -1,7 +1,9 @@
 <template>
   <v-card max-width="400">
     <v-card-title></v-card-title>
-    <v-card-text> 本当に削除してよろしいですか？ </v-card-text>
+    <v-card-text>
+      タスク「{{ task.title }}」 を削除してよろしいですか？
+    </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="green darken-1" text @click="$emit('close')">
@@ -15,5 +17,10 @@
 <script>
 export default {
   name: "DeleteTask",
+  props: {
+    task: {
+      type: Object,
+    },
+  },
 };
 </script>

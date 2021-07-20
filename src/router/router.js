@@ -1,7 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Todo from "../views/Todo.vue";
-import CreateTodo from "../views/CreateTodo.vue";
 import About from "../views/About.vue";
 import Login from "../views/Login.vue";
 
@@ -19,11 +18,6 @@ export default new Router({
       path: "/about",
       name: "About",
       component: About,
-    },
-    {
-      path: "/create",
-      name: "Create",
-      component: CreateTodo,
     },
     {
       path: "/login",
