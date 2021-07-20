@@ -53,7 +53,11 @@
       </div>
     </v-list>
     <v-dialog v-model="dialog" width="unset">
-      <!-- <edit-task v-show="Open_menu === 'Edit'" @close="closeDialog" /> -->
+      <edit-task
+        v-show="Open_menu === 'Edit'"
+        :task="selected_task"
+        @close="closeDialog"
+      />
       <add-subtask
         v-show="Open_menu === 'Add Subtask'"
         :task="selected_task"
