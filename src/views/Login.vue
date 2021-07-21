@@ -5,18 +5,22 @@
     </v-cart-title>
     <v-card-text>
       <v-form>
-        <v-text-field prepend-icon="mdi-account-circle" label='ユーザ名' v-model="name"></v-text-field>
+        <v-text-field
+          prepend-icon="mdi-account-circle"
+          label="ユーザ名"
+          v-model="name"
+        ></v-text-field>
         <v-text-field
           v-bind:type="showPassword ? 'text' : 'password'"
           v-bind:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
           @click:append="showPassword = !showPassword"
           prepend-icon="mdi-lock"
-          label='パスワード'
+          label="パスワード"
           v-model="password"
-          >
+        >
         </v-text-field>
         <v-card-actions>
-          <v-btn class='info' @click="submit">ログイン</v-btn>
+          <v-btn class="info" @click="submit">ログイン</v-btn>
         </v-card-actions>
       </v-form>
     </v-card-text>
@@ -25,16 +29,16 @@
 
 <script>
 export default {
-  name: 'Login',
+  name: "Login",
   data: () => ({
-    showPassword : false,
-    name:'',
-    password:''
+    showPassword: false,
+    name: "",
+    password: "",
   }),
-  methods:{
-    submit(){
-      console.log (this.name, this.password)
-    }
-  }
+  methods: {
+    submit() {
+      console.log(this.name, this.password);
+    },
+  },
 };
 </script>

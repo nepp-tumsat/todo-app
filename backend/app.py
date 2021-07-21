@@ -24,9 +24,9 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 
 @app.route('/usersample',methods=['POST'])
 #ユーザーのサンプルデータの追加
-def usersample():
-    sampleuser = User(username='sampleuser',password='pass')
-    db.session.add(sampleuser)
+def user_sample():
+    sample_user = User(username='sampleuser',password='pass')
+    db.session.add(sample_user)
     db.session.commit()
 
     response_object = {'message': 'Successfully Add SampleUser'}
@@ -34,9 +34,9 @@ def usersample():
 
 @app.route('/tasksample',methods=['POST'])
 #タスクのサンプルデータの追加
-def tasksample():
-    sampletask = Task(user_id=1,task = 'sampletask')
-    db.session.add(sampletask)
+def task_sample():
+    sample_task = Task(user_id=1,task = 'sampletask')
+    db.session.add(sample_task)
     db.session.commit()
 
     response_object = {'message': 'Successfully Add SampleTask'}
@@ -44,9 +44,9 @@ def tasksample():
 
 @app.route('/subtasksample',methods=['POST'])
 #サブタスクのサンプルデータの追加
-def subtasksample():
-    samplesubtask = Subtask(user_id=1,task_id=1,sub_task="samplesubtask")
-    db.session.add(samplesubtask)
+def subtask_sample():
+    sample_subtask = Subtask(user_id=1,task_id=1,sub_task="samplesubtask")
+    db.session.add(sample_subtask)
     db.session.commit()
 
     response_object = {'message': 'Successfully Add SampleSubtask'}
@@ -76,6 +76,17 @@ def subtasksample():
 def delete_user(id):
     db.session.query(User).filter(User.id==id).delete()
     db.session.commit()
+
+@app.route('/edit/<int:id>', methods=['POST'])
+def edit_todo(id):
+    edit_task=Task.query.get(id)
+    new_task = Task()
+    request_dict = request.get_json()
+    edit_task.task = request_dict['task_name']
+    edit_task.created_at = datetime.now()
+    edit_task.limit_at = datetime.now()
+
+    db.a.commit()
 
     users = User.query.all()
     response_object = []
@@ -111,19 +122,18 @@ def list_todo():
 #     new_task.task = request_dict['task_name']
 #     new_task.user_id = request_dict['user_id']
 #     db.session.add(new_task)
-#     db.session.commit()
+#     db.session.commit()# ここでidが確定する
 
-#     tasks = Task.query.all()
-#     response_object = []
-#     for task in tasks:
-#         response_dict = {'id': task.id,
-#                         'user_id':task.user_id,
-#                         "created_at":task.created_at,
-#                         "limit_at":task.limit_at,
-#                         'task':task.task,
-#                         }
-#         response_object.append(response_dict)
-#     return jsonify(response_object)
+#     res_obj = {
+#         'id': new_task.id,
+#         'user_id': new_task.user_id,
+#         'created_at': new_task.created_at,
+#         'limit_at': new_task.limit_at,
+#         'task': new_task.task,
+#         'sub_tasks': new_task.sub_tasks
+#     }
+#     return jsonify(res_obj)
+
 
 # @app.route('/task/<int:id>', methods=['PATCH'])
 # def edit_todo(id):
@@ -167,8 +177,8 @@ def delete_todo(id):
 
 # 以下subtask
 @app.route('/<int:taskid>/subtask',methods=['GET'])
-def subtask(taskid):
-    subtasks = Subtask.query.filter(Subtask.task_id == taskid)
+def subtask(task_id):
+    subtasks = Subtask.query.filter(Subtask.task_id == task_id)
     response_object = []
     for subtask in subtasks:
         response_dict = {'id': subtask.id,

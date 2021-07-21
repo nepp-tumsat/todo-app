@@ -1,32 +1,17 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-    >
+    <v-navigation-drawer v-model="drawer" app>
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="text-h6">
-            Todo
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            SPA Todo Application
-          </v-list-item-subtitle>
+          <v-list-item-title class="text-h6"> Todo </v-list-item-title>
+          <v-list-item-subtitle> SPA Todo Application </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
       <v-divider></v-divider>
 
-      <v-list
-        dense
-        nav
-      >
-        <v-list-item
-          v-for="item in items"
-          :key="item.title"
-          :to="item.to"
-          link
-        >
+      <v-list dense nav>
+        <v-list-item v-for="item in items" :key="item.title" :to="item.to" link>
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -38,13 +23,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar
-      app
-      color="primary"
-      dark
-      src="mountains.png"
-      prominent
-    >
+    <v-app-bar app color="primary" dark src="mountains.png" prominent>
       <template v-slot:img="{ props }">
         <v-img
           v-bind="props"
@@ -78,13 +57,13 @@
 </template>
 
 <script>
-  export default {
-    data: () => ({
-      drawer: false, // navigate barの有無を決める
-      items: [
-        { title: 'Todo', icon: 'mdi-format-list-checks', to: '/' },
-        { title: 'About', icon: 'mdi-help-box', to: '/about' },
-      ],
-    }),
-  }
+export default {
+  data: () => ({
+    drawer: false, // navigate barの有無を決める
+    items: [
+      { title: "Todo", icon: "mdi-format-list-checks", to: "/" },
+      { title: "About", icon: "mdi-help-box", to: "/about" },
+    ],
+  }),
+};
 </script>

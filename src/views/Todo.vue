@@ -1,97 +1,81 @@
 <template>
-  <div class='home'>
-    <v-btn
-      @click="addUser"
-    >
-      user追加
-    </v-btn>
+  <div class="home">
+    <v-btn @click="addUser"> user追加 </v-btn>
     <v-text-field
       v-model="newTaskTitle"
       @click:append="addTask"
-      @keyup.enter="addTask"
+      @keydown.enter="addTask"
       class="pa-3"
       outlined
       label="Add Task"
       append-icon="mdi-plus"
       clearable
-      :rules="rules.task"
-      required
     ></v-text-field>
-    <v-list
-      class="pt-0"
-      flat
-    >
-      <div
-        v-for="task in tasks"
-        :key="task.id"
-      >
-      <!-- <EditTask v-show="Open_item === 'Edit'" :item="item" @close="closeDialog"/>
-      <AddSubTask v-show="Open_item === 'Add Subtask'" :item="item" /> -->
-      <DeleteTask v-show="Open_item === 'Delete'" :Open_item="Open_item" :task="task" @close="closeDialog"/>
+    <v-list class="pt-0" flat>
+      <div v-for="task in tasks" :key="task.id">
         <v-list-item
           @click="doneTask(task.id)"
-          :class="{ 'blue lighten-5' : task.done }"
+          :class="{ 'blue lighten-5': task.done }"
         >
           <template v-slot:default>
             <v-list-item-action>
-              <v-checkbox
-                :input-value="task.done"
-                color="primary"
-              ></v-checkbox>
+              <v-checkbox :input-value="task.done" color="primary"></v-checkbox>
             </v-list-item-action>
 
             <v-list-item-content>
               <v-list-item-title
-                :class="{ '.text-decoration-line-through' : task.done }"
+                :class="{ '.text-decoration-line-through': task.done }"
               >
-              {{ task.title }}
+                {{ task.title }}
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
               <v-menu offset-y>
                 <template v-slot:activator="{ on }">
-                  <v-btn
-                    color="primary"
-                    dark
-                    v-on="on"
-                    icon
-                  >
+                  <v-btn color="primary" dark v-on="on" icon>
                     <v-icon color="primary lighten-1">
                       mdi-dots-horizontal-circle
                     </v-icon>
                   </v-btn>
                 </template>
                 <v-list>
-                  <v-list-item
-                    v-for="(item, index) in items"
-                    :key="index"
-                    @click="selectDialog(item.title)"
-                  >
-                    <v-list-item-title>{{ item.title }}</v-list-item-title>
-                  </v-list-item>
+                  <div v-for="menu in menus" :key="menu.title">
+                    <v-list-item @click="selectDialog(menu, task)">
+                      <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                    </v-list-item>
+                  </div>
                 </v-list>
               </v-menu>
-          </v-list-item-action>
+            </v-list-item-action>
           </template>
         </v-list-item>
         <v-divider></v-divider>
       </div>
     </v-list>
-
+    <v-dialog v-model="dialog" width="unset">
+      <edit-task
+        v-show="Open_menu === 'Edit'"
+        :task="selected_task"
+        @close="closeDialog"
+      />
+      <add-subtask
+        v-show="Open_menu === 'Add Subtask'"
+        :task="selected_task"
+        @close="closeDialog"
+        @addsave="onAddSave"
+      />
+      <delete-task
+        v-show="Open_menu === 'Delete'"
+        :task="selected_task"
+        @close="closeDialog"
+        @delete="onDelete"
+      />
+    </v-dialog>
     <div>
-      <v-snackbar
-        v-model="snackbar"
-        timeout=1000
-        multi-line
-      >
+      <v-snackbar v-model="snackbar" timeout="1000" multi-line>
         Add New Task!!
         <template v-slot:action="{ attrs }">
-          <v-btn
-            color="pink"
-            text
-            v-bind="attrs"
-            @click="snackbar = false"
-          >
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
             Close
           </v-btn>
         </template>
@@ -101,16 +85,16 @@
 </template>
 
 <script>
-import axios from 'axios'
-import EditTask from '../components/Dialogs/EditTask.vue'
-import AddSubTask from '../components/Dialogs/AddSubTask.vue'
-import DeleteTask from '../components/Dialogs/DeleteTask.vue'
+import axios from "axios";
+import EditTask from "../components/Dialogs/EditTask.vue";
+import AddSubtask from "../components/Dialogs/AddSubtask.vue";
+import DeleteTask from "../components/Dialogs/DeleteTask.vue";
 
 export default {
-  name: 'Todo',
+  name: "Todo",
   components: {
     EditTask,
-    AddSubTask,
+    AddSubtask,
     DeleteTask,
   },
   data() {
@@ -120,68 +104,85 @@ export default {
       date: new Date().getDate(),
       ord: this.nth(new Date().getDate()),
       year: new Date().getFullYear(),
-      newTaskTitle: '',
+      newTaskTitle: "",
       tasks: [],
+      sub_tasks: {},
       snackbar: false,
-      rules: {
-        task: [val => (val || '').length > 0 || 'This field is required']
-      },
-      items: [
-        { title: 'Edit' },
-        { title: 'Add Subtask' },
-        { title: 'Delete' },
-        { title: 'Sort' },
+      menus: [
+        { title: "Edit" },
+        { title: "Add Subtask" },
+        { title: "Delete" },
+        { title: "Sort" },
       ],
-      Open_item: '',
-      user_id: 0,
-    }
+      Open_menu: "",
+      selected_task: {},
+      user_id: 1,
+    };
   },
   methods: {
     addUser() {
-      axios.get(process.env.FLASK_HOST + '/adduser')
+      axios
+        .get(process.env.FLASK_HOST + "/adduser")
         .then((res) => {
-          console.log(res.data.message)
-          }
-        ).catch((err) => {
-          console.log(err)
+          console.log(res.data.message);
         })
+        .catch((err) => {
+          console.log(err);
+        });
     },
-    selectDialog(item) {
-      this.Open_item = item;
+    selectDialog(menu, task) {
+      this.selected_task = task;
+      this.Open_menu = menu.title;
+      this.dialog = true;
+      console.log(this.Open_menu);
+      console.log(this.selected_task);
     },
     closeDialog() {
-      this.Open_item = ''
-
+      this.Open_menu = "";
+      this.dialog = false;
+      this.selected_task = {};
+      console.log("close dialog");
     },
     addTask() {
       if (this.newTaskTitle.length < 1) {
-        return
+        alert("タスク名を入力してください");
+        return;
       }
-      let newTask = {
-        id: Date.now(),
-        title: this.newTaskTitle,
-        done: false
-      };
-      axios.post(process.env.FLASK_HOST + '/create',
-        {
+      if (event.keyCode !== 13) return;
+      axios
+        .post(process.env.FLASK_HOST + "/create", {
           user_id: 1,
-          task_name: this.newTaskTitle
-        }
-      ).then((res) => {
-        this.tasks.push(newTask);
-        this.newTaskTitle = ''
-        this.snackbar = true;
-      }).catch((err)=> {
-        console.log(err)
-      })
+          task_name: this.newTaskTitle,
+        })
+        .then((res) => {
+          const task_info = res.data;
+          this.tasks.push({
+            id: task_info.id,
+            title: task_info.task,
+            done: false,
+          });
+          this.newTaskTitle = "";
+          this.snackbar = true;
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
     },
-    doneTask(id) {
-      let task = this.tasks.filter(task => task.id === id)[0]
-      task.done = !task.done
+    doneTask(task_id) {
+      let task = this.tasks.filter((task) => task.id === task_id)[0];
+      task.done = !task.done;
     },
-    deleteTask(id) {
-      this.tasks = this.tasks.filter(task => task.id !== id)
+    onDelete() {
+      // TODO: API接続
+      this.tasks = this.tasks.filter(
+        (task) => task.id !== this.selected_task.id
+      );
+      this.Open_menu = "";
+      this.dialog = false;
+      this.selected_task = {};
     },
+    onAddSave() {},
+    onEditSave() {},
     todoDay() {
       const d = new Date();
       const days = [
@@ -191,7 +192,7 @@ export default {
         "Wednesday",
         "Thursday",
         "Friday",
-        "Saturday"
+        "Saturday",
       ];
       return days[d.getDay()];
     },
@@ -207,33 +208,48 @@ export default {
         default:
           return "th";
       }
-    }
+    },
   },
   filters: {
     capitalize: function (value) {
       if (!value) return "";
       value = value.toString();
       return value.charAt(0).toUpperCase() + value.slice(1);
-    }
+    },
   },
-  created: function() {
+  created: function () {
     // TODO: fix
-    this.user_id = 1
-    axios.get(process.env.FLASK_HOST + '/list')
-    .then(res => {
-      console.log(this.tasks)
-      console.log('res', res)
-      // tasksは配列
-      // this.tasks = res.data.tasks
-    }).catch(err => {
-      console.log('err')
-      let newTask = {
-        id: Date.now(),
-        title: "sample",
-        done: false
-      };
-      this.tasks.push(newTask);
-    })
-  }
-}
-</script>>
+    axios
+      .get(process.env.FLASK_HOST + "/list")
+      .then((res) => {
+        this.tasks = res.data.map(function (task) {
+          return {
+            id: task.id,
+            title: task.task,
+            done: false,
+          };
+        });
+        console.log(this.tasks);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+
+    // subtask
+    this.sub_tasks = {
+      1: [
+        {
+          id: 1,
+          title: "sub_task1",
+          done: false,
+        },
+      ],
+    };
+    // axios.get(process.env.FLASK_HOST + "/subtask").then((res) => {
+    // res = {task_id: [sub_task1, sub_task2, ...]}
+    // this.sub_tasks = {'1':[{}, {},]}
+    // Object.keys(res.data).forEach()
+    // });
+  },
+};
+</script>
