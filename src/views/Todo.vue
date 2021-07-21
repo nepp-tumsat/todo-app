@@ -190,7 +190,7 @@ export default {
       }
       if (event.keyCode !== 13) return;
       axios
-        .post(process.env.FLASK_HOST + "/create", {
+        .post(process.env.FLASK_HOST + "/task", {
           user_id: 1,
           task_name: this.newTaskTitle,
         })
