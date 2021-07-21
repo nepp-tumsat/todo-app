@@ -12,8 +12,11 @@
       clearable
     ></v-text-field>
     <v-list class="pt-0" flat>
+      <v-alert text type="info" v-show="!show_list">
+        <div>タスクはありません</div>
+      </v-alert>
       <draggable v-model="tasks" :disable="!Isdraggable">
-        <div v-for="task in tasks" :key="task.id">
+        <div v-for="task in reversed_tasks" :key="task.id">
           <v-list-item
             @click="doneTask(task.id)"
             :class="{ 'blue lighten-5': task.done }"
@@ -149,6 +152,12 @@ export default {
     Isdraggable: function () {
       return this.Open_menu === "Sort" ? true : false;
     },
+    show_list: function () {
+      return this.tasks.length > 0 ? true : false;
+    },
+    reversed_tasks: function () {
+      return this.tasks.slice().reverse();
+    },
   },
   methods: {
     addUser() {
@@ -184,7 +193,7 @@ export default {
       }
       if (event.keyCode !== 13) return;
       axios
-        .post(process.env.FLASK_HOST + "/create", {
+        .post(process.env.FLASK_HOST + "/task", {
           user_id: 1,
           task_name: this.newTaskTitle,
         })
@@ -268,7 +277,6 @@ export default {
       .catch((err) => {
         console.log("err", err);
       });
-
     // subtask
     this.sub_tasks = {
       1: [

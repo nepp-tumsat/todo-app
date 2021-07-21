@@ -22,6 +22,10 @@ app = create_app()
 #########
 CORS(app, resources={r'/*': {'origins': '*'}})
 
+######################
+# INSERT SAMPLE DATA #
+######################
+
 @app.route('/usersample',methods=['POST'])
 #ユーザーのサンプルデータの追加
 def user_sample():
@@ -51,6 +55,10 @@ def subtask_sample():
 
     response_object = {'message': 'Successfully Add SampleSubtask'}
     return jsonify(response_object)
+
+########
+# USER #
+########
 
 # @app.route('/user', methods=['POST'])
 # def create_user():
@@ -99,7 +107,10 @@ def edit_todo(id):
         response_object.append(response_dict)
     return jsonify(response_object)
 
-# ここからtask
+########
+# TASK #
+########
+
 @app.route('/task', methods=['GET'])
 def list_todo():
     tasks = Task.query.all()
@@ -114,25 +125,25 @@ def list_todo():
         response_object.append(response_dict)
     return jsonify(response_object)
 
-# @app.route('/task', methods=['POST'])
-# def create_todo():
-#     new_task = Task()
-#     # requestの辞書を取得
-#     request_dict = request.get_json()
-#     new_task.task = request_dict['task_name']
-#     new_task.user_id = request_dict['user_id']
-#     db.session.add(new_task)
-#     db.session.commit()# ここでidが確定する
+@app.route('/task', methods=['POST'])
+def create_todo():
+    new_task = Task()
+    # requestの辞書を取得
+    request_dict = request.get_json()
+    new_task.task = request_dict['task_name']
+    new_task.user_id = request_dict['user_id']
+    db.session.add(new_task)
+    db.session.commit()# ここでidが確定する
 
-#     res_obj = {
-#         'id': new_task.id,
-#         'user_id': new_task.user_id,
-#         'created_at': new_task.created_at,
-#         'limit_at': new_task.limit_at,
-#         'task': new_task.task,
-#         'sub_tasks': new_task.sub_tasks
-#     }
-#     return jsonify(res_obj)
+    res_obj = {
+        'id': new_task.id,
+        'user_id': new_task.user_id,
+        'created_at': new_task.created_at,
+        'limit_at': new_task.limit_at,
+        'task': new_task.task,
+        'sub_tasks': new_task.sub_tasks
+    }
+    return jsonify(res_obj)
 
 
 # @app.route('/task/<int:id>', methods=['PATCH'])
@@ -174,8 +185,10 @@ def delete_todo(id):
         response_object.append(response_dict)
     return jsonify(response_object)
 
+###########
+# SUBTASK #
+###########
 
-# 以下subtask
 @app.route('/<int:taskid>/subtask',methods=['GET'])
 def subtask(task_id):
     subtasks = Subtask.query.filter(Subtask.task_id == task_id)
