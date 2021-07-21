@@ -16,7 +16,7 @@
         <div>タスクはありません</div>
       </v-alert>
       <draggable v-model="tasks" :disable="!Isdraggable">
-        <div v-for="task in tasks" :key="task.id">
+        <div v-for="task in reversed_tasks" :key="task.id">
           <v-list-item
             @click="doneTask(task.id)"
             :class="{ 'blue lighten-5': task.done }"
@@ -154,6 +154,9 @@ export default {
     },
     show_list: function () {
       return this.tasks.length > 0 ? true : false;
+    },
+    reversed_tasks: function () {
+      return this.tasks.slice().reverse();
     },
   },
   methods: {
