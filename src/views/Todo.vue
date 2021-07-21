@@ -12,45 +12,55 @@
       clearable
     ></v-text-field>
     <v-list class="pt-0" flat>
-      <div v-for="task in tasks" :key="task.id">
-        <v-list-item
-          @click="doneTask(task.id)"
-          :class="{ 'blue lighten-5': task.done }"
-        >
-          <template v-slot:default>
-            <v-list-item-action>
-              <v-checkbox :input-value="task.done" color="primary"></v-checkbox>
-            </v-list-item-action>
+      <draggable v-model="tasks" :disable="!Isdraggable">
+        <div v-for="task in tasks" :key="task.id">
+          <v-list-item
+            @click="doneTask(task.id)"
+            :class="{ 'blue lighten-5': task.done }"
+          >
+            <template v-slot:default>
+              <v-list-item-action>
+                <v-checkbox
+                  :input-value="task.done"
+                  color="primary"
+                ></v-checkbox>
+              </v-list-item-action>
 
-            <v-list-item-content>
-              <v-list-item-title
-                :class="{ '.text-decoration-line-through': task.done }"
-              >
-                {{ task.title }}
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-menu offset-y>
-                <template v-slot:activator="{ on }">
-                  <v-btn color="primary" dark v-on="on" icon>
-                    <v-icon color="primary lighten-1">
-                      mdi-dots-horizontal-circle
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <v-list>
-                  <div v-for="menu in menus" :key="menu.title">
-                    <v-list-item @click="selectDialog(menu, task)">
-                      <v-list-item-title>{{ menu.title }}</v-list-item-title>
-                    </v-list-item>
-                  </div>
-                </v-list>
-              </v-menu>
-            </v-list-item-action>
-          </template>
-        </v-list-item>
-        <v-divider></v-divider>
-      </div>
+              <v-list-item-content>
+                <v-list-item-title
+                  :class="{ '.text-decoration-line-through': task.done }"
+                >
+                  {{ task.title }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-menu offset-y>
+                  <template v-slot:activator="{ on }">
+                    <v-btn color="primary" dark v-on="on" icon>
+                      <v-icon color="primary lighten-1">
+                        mdi-dots-horizontal-circle
+                      </v-icon>
+                    </v-btn>
+                    <v-btn v-show="Isdraggable" icon>
+                      <v-icon color="primary lighten-1">
+                        mdi-view-headline
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <div v-for="menu in menus" :key="menu.title">
+                      <v-list-item @click="selectDialog(menu, task)">
+                        <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                      </v-list-item>
+                    </div>
+                  </v-list>
+                </v-menu>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+          <v-divider></v-divider>
+        </div>
+      </draggable>
     </v-list>
     <v-dialog v-model="dialog" width="unset">
       <edit-task
@@ -71,6 +81,19 @@
         @delete="onDelete"
       />
     </v-dialog>
+    <div v-show="Open_menu === 'Sort'">
+      <v-btn
+        x-large
+        min-width="300"
+        fixed
+        bottom　
+        color="success"
+        :style="{ left: '50%', transform: 'translateX(-50%)' }"
+        @click="Open_menu = false"
+      >
+        Stop Sorting
+      </v-btn>
+    </div>
     <div>
       <v-snackbar v-model="snackbar" timeout="1000" multi-line>
         Add New Task!!
@@ -90,12 +113,14 @@ import EditTask from "../components/Dialogs/EditTask.vue";
 import AddSubtask from "../components/Dialogs/AddSubtask.vue";
 import DeleteTask from "../components/Dialogs/DeleteTask.vue";
 
+const draggable = require("vuedraggable");
 export default {
   name: "Todo",
   components: {
     EditTask,
     AddSubtask,
     DeleteTask,
+    draggable: draggable,
   },
   data() {
     return {
@@ -117,7 +142,13 @@ export default {
       Open_menu: "",
       selected_task: {},
       user_id: 1,
+      dragging: false,
     };
+  },
+  computed: {
+    Isdraggable: function () {
+      return this.Open_menu === "Sort" ? true : false;
+    },
   },
   methods: {
     addUser() {
@@ -133,7 +164,10 @@ export default {
     selectDialog(menu, task) {
       this.selected_task = task;
       this.Open_menu = menu.title;
-      this.dialog = true;
+      if (this.Open_menu !== "Sort") {
+        this.dialog = true;
+      }
+      console.log("dialog", this.dialog);
       console.log(this.Open_menu);
       console.log(this.selected_task);
     },
@@ -220,7 +254,7 @@ export default {
   created: function () {
     // TODO: fix
     axios
-      .get(process.env.FLASK_HOST + "/list")
+      .get(process.env.FLASK_HOST + "/task")
       .then((res) => {
         this.tasks = res.data.map(function (task) {
           return {
