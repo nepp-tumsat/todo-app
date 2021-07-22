@@ -32,7 +32,7 @@
 
 <script>
 export default {
-  name: " Edittask",
+  name: " EditTask",
   props: {
     task: {
       type: Object,
