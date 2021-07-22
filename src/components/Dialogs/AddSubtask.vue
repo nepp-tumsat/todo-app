@@ -1,16 +1,26 @@
 <template>
   <v-card class="pa-md-4 mx-lg-auto" width="800px">
     <v-card-title>
-      <span class="text-h4">サブタスクを追加2</span>
+      <div class="mx-n4">
+        <span class="text-h4">サブタスク追加</span>
+      </div>
     </v-card-title>
     <v-card-text>
-      <v-row>
-        <v-col>xxx</v-col>
-      </v-row>
-      <div>
-        <v-text-field label="Add subtask"> </v-text-field>
+      <div class="py-2">
+        <span class="text-h5">TASK: {{ task.title }}</span>
       </div>
-      <div class="text-h8">サブタスクリスト2</div>
+      <div>
+        <v-text-field
+          class="ma-10"
+          v-model="newSubtaskTitle"
+          label="Add subtask"
+          @click:append="addSubTask"
+          @keydown.enter="addSubTask"
+          append-icon="mdi-plus"
+        >
+        </v-text-field>
+      </div>
+      <div class="text-h8">サブタスクリスト</div>
       <v-alert text type="info" v-show="!show_list">
         <div>サブタスクはありません</div>
       </v-alert>
@@ -37,12 +47,13 @@
             </v-list-item-action>
           </template>
         </v-list-item>
+        <v-divider></v-divider>
       </div>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="blue darken-1" text @click="$emit('close')"> Close </v-btn>
-      <v-btn color="blue darken-1" text @click="$emit('close')"> Save </v-btn>
+      <v-btn color="blue darken-1" text @click="$emit('addsave')"> Save </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -75,6 +86,7 @@ export default {
           done: false,
         },
       ],
+      dummy_id: 2,
     };
   },
   computed: {
@@ -89,6 +101,16 @@ export default {
           title: "sample1",
         },
       ];
+    },
+    addSubTask() {
+      const new_subtask = {
+        title: this.newSubtaskTitle,
+        id: this.dummy_id + 1,
+        done: false,
+      };
+      this.sample_list.push(new_subtask);
+      this.newSubtaskTitle = "";
+      this.dummy_id += 1;
     },
     doneTask(task_id) {
       let task = this.sample_list.filter((task) => task.id === task_id)[0];
