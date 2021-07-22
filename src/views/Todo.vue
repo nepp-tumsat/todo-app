@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    <v-btn @click="addUser"> user追加 </v-btn>
     <v-text-field
       v-model="newTaskTitle"
       @click:append="addTask"
@@ -78,6 +77,12 @@
         @close="closeDialog"
         @addsave="onAddSave"
       />
+      <select-limit
+        v-show="Open_menu === 'Select Limit'"
+        :task="selected_task"
+        @close="closeDialog"
+        @select_limit="onSelectLimit"
+      />
       <delete-task
         v-show="Open_menu === 'Delete'"
         :task="selected_task"
@@ -115,6 +120,7 @@
 import axios from "axios";
 import EditTask from "../components/Dialogs/EditTask.vue";
 import AddSubtask from "../components/Dialogs/AddSubtask.vue";
+import SelectLimit from "../components/Dialogs/SelectLimit.vue";
 import DeleteTask from "../components/Dialogs/DeleteTask.vue";
 
 const draggable = require("vuedraggable");
@@ -123,6 +129,7 @@ export default {
   components: {
     EditTask,
     AddSubtask,
+    SelectLimit,
     DeleteTask,
     draggable: draggable,
   },
@@ -140,6 +147,7 @@ export default {
       menus: [
         { title: "Edit" },
         { title: "Add Subtask" },
+        { title: "Select Limit" },
         { title: "Delete" },
         { title: "Sort" },
       ],
@@ -147,6 +155,7 @@ export default {
       selected_task: {},
       user_id: 1,
       dragging: false,
+      limit_date: "",
     };
   },
   computed: {
@@ -161,16 +170,6 @@ export default {
     },
   },
   methods: {
-    addUser() {
-      axios
-        .get(process.env.FLASK_HOST + "/adduser")
-        .then((res) => {
-          console.log(res.data.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
     selectDialog(menu, task) {
       this.selected_task = task;
       this.Open_menu = menu.title;
@@ -225,8 +224,20 @@ export default {
       this.dialog = false;
       this.selected_task = {};
     },
-    onAddSave() {},
-    onEditSave() {},
+    onAddSave() {
+      this.Open_menu = "";
+      this.dialog = false;
+    },
+    onEditSave() {
+      this.Open_menu = "";
+      this.dialog = false;
+    },
+    onSelectLimit(date) {
+      //TODO: taskのlimit_dateを保存する
+      this.limit_date = date;
+      this.Open_menu = "";
+      this.dialog = false;
+    },
     todoDay() {
       const d = new Date();
       const days = [
