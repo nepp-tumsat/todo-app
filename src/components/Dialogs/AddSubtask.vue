@@ -1,14 +1,16 @@
 <template>
   <v-card class="pa-md-4 mx-lg-auto" width="800px">
     <v-card-title>
-      <span class="text-h3">{{ task.title }}</span>
+      <span class="text-h4">サブタスクを追加2</span>
     </v-card-title>
     <v-card-text>
+      <v-row>
+        <v-col>xxx</v-col>
+      </v-row>
       <div>
-        <p>サブタスクを追加する</p>
         <v-text-field label="Add subtask"> </v-text-field>
       </div>
-      <div class="text-h8">サブタスクリスト</div>
+      <div class="text-h8">サブタスクリスト2</div>
       <v-alert text type="info" v-show="!show_list">
         <div>サブタスクはありません</div>
       </v-alert>
