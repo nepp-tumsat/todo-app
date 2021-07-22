@@ -4,6 +4,7 @@ import Store from "../store/index.js";
 import Todo from "../views/Todo.vue";
 import About from "../views/About.vue";
 import Login from "../views/Login.vue";
+import Register from "../views/Register.vue";
 
 Vue.use(Router);
 
@@ -26,6 +27,11 @@ const router = new Router({
       path: "/login",
       name: "Login",
       component: Login,
+    },
+    {
+      path: "/register",
+      name: "Register",
+      component: Register,
     },
   ],
 });

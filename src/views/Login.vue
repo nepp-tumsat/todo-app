@@ -22,7 +22,7 @@
         </v-alert>
         <v-card-actions>
           <v-btn color="info" @click="submit">ログイン</v-btn>
-          <v-btn coler="success" @click="submit">新規登録</v-btn>
+          <v-btn coler="success" @click="register">新規登録</v-btn>
         </v-card-actions>
       </v-form>
     </v-card-text>
@@ -48,6 +48,9 @@ export default {
       } else {
         this.error_message = "ユーザー名かパスワードが違います";
       }
+    },
+    register() {
+      this.$router.push("/register");
     },
   },
 };
