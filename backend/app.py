@@ -6,12 +6,38 @@ from datetime import datetime
 from backend.database import init_db,db
 from backend.models import User, Task, Subtask
 
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object('backend.config.Config')
-
     init_db(app)
-
+    with app.app_context():
+        def add_sample():
+            db.session.query(User).filter(User.id==1).delete()
+            db.session.query(Task).filter(Task.id==1).delete()
+            db.session.query(Subtask).filter(Subtask.id==1).delete()
+            db.session.commit()
+            sample_user = User(
+                id=1,
+                username='sampleuser',
+                password='pass',
+                email='email'
+            )
+            db.session.add(sample_user)
+            sample_task = Task(
+                id=1,
+                user_id=1,
+                task = 'sampletask')
+            db.session.add(sample_task)
+            sample_subtask = Subtask(
+                id=1,
+                user_id=1,
+                task_id=1,
+                sub_task="samplesubtask")
+            db.session.add(sample_subtask)
+            db.session.commit()
+        add_sample()
     return app
 
 app = create_app()
@@ -26,39 +52,60 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 # INSERT SAMPLE DATA #
 ######################
 
-@app.route('/usersample',methods=['POST'])
-#ユーザーのサンプルデータの追加
-def user_sample():
-    sample_user = User(username='sampleuser',password='pass')
-    db.session.add(sample_user)
-    db.session.commit()
+# @app.route('/usersample',methods=['POST'])
+# #ユーザーのサンプルデータの追加
+# def user_sample():
+#     sample_user = User(
+#         id=1,
+#         username='sampleuser',
+#         password='pass',
+#         email='email'
+#         )
+#     db.session.add(sample_user)
+#     db.session.commit()
 
-    response_object = {'message': 'Successfully Add SampleUser'}
-    return jsonify(response_object)
+#     response_object = {'message': 'Successfully Add SampleUser'}
+#     return jsonify(response_object)
 
-@app.route('/tasksample',methods=['POST'])
-#タスクのサンプルデータの追加
-def task_sample():
-    sample_task = Task(user_id=1,task = 'sampletask')
-    db.session.add(sample_task)
-    db.session.commit()
+# @app.route('/tasksample',methods=['POST'])
+# #タスクのサンプルデータの追加
+# def task_sample():
+#     sample_task = Task(id=1,user_id=1,task = 'sampletask')
+#     db.session.add(sample_task)
+#     db.session.commit()
 
-    response_object = {'message': 'Successfully Add SampleTask'}
-    return jsonify(response_object)
+#     response_object = {'message': 'Successfully Add SampleTask'}
+#     return jsonify(response_object)
 
-@app.route('/subtasksample',methods=['POST'])
-#サブタスクのサンプルデータの追加
-def subtask_sample():
-    sample_subtask = Subtask(user_id=1,task_id=1,sub_task="samplesubtask")
-    db.session.add(sample_subtask)
-    db.session.commit()
+# @app.route('/subtasksample',methods=['POST'])
+# #サブタスクのサンプルデータの追加
+# def subtask_sample():
+#     sample_subtask = Subtask(user_id=1,task_id=1,sub_task="samplesubtask")
+#     db.session.add(sample_subtask)
+#     db.session.commit()
 
-    response_object = {'message': 'Successfully Add SampleSubtask'}
-    return jsonify(response_object)
+#     response_object = {'message': 'Successfully Add SampleSubtask'}
+#     return jsonify(response_object)
 
 ########
 # USER #
 ########
+
+@app.route('/user', methods=['GET'])
+def list_user():
+    users = User.query.all()
+    response_object = []
+    for user in users:
+        response_dict = {'id': user.id,
+                        'username':user.username,
+                        'password':user.password,
+                        "created_at":user.created_at,
+                        "email":user.email,
+
+                        }
+        response_object.append(response_dict)
+
+    return jsonify(response_object)
 
 @app.route('/user', methods=['POST'])
 def create_user():
@@ -73,7 +120,9 @@ def create_user():
     db.session.commit()
 
     response_dict = {'user_id': new_user.id,
-                    'username':new_user.username}
+                    'username':new_user.username,
+                    'email':new_user.email}
+
 
     return jsonify(response_dict)
 
@@ -81,6 +130,8 @@ def create_user():
 def delete_user(id):
     db.session.query(User).filter(User.id==id).delete()
     db.session.commit()
+    response_object = {'message': 'Successfully Delete User'}
+    return jsonify(response_object)
 
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_todo(id):
@@ -99,6 +150,7 @@ def edit_todo(id):
         response_dict = {'id': user.id,
                         'username':user.username,
                         "password":user.password,
+                        "email":user.email,
                         "created_at":user.created_at,
                         }
         response_object.append(response_dict)
@@ -186,7 +238,7 @@ def delete_todo(id):
 # SUBTASK #
 ###########
 
-@app.route('/<int:taskid>/subtask',methods=['GET'])
+@app.route('/<int:task_id>/subtask',methods=['GET'])
 def subtask(task_id):
     subtasks = Subtask.query.filter(Subtask.task_id == task_id)
     response_object = []
@@ -241,19 +293,19 @@ def subtask(task_id):
 #         response_object.append(response_dict)
 #     return jsonify(response_object)
 
-# app.route('/<int:taskid>/subtask/<int:id>', methods=['DELETE'])
-# def delete_subtask(taskid,id):
-#     db.session.query(Subtask).filter(Subtask.id==id).delete()
-#     db.session.commit()
-#     subtasks = Subtask.query.filter(Subtask.task_id == taskid)
-#     response_object = []
-#     for subtask in subtasks:
-#         response_dict = {'id': subtask.id,
-#                         'user_id':subtask.user_id,
-#                         'task_id':subtask.task_id,
-#                         "created_at":subtask.created_at,"limit_at":subtask.limit_at,
-#                         "sub_task":subtask.sub_task
-#                         }
-#         response_object.append(response_dict)
-#     return jsonify(response_object)
+@app.route('/<int:taskid>/subtask/<int:id>', methods=['DELETE'])
+def delete_subtask(taskid,id):
+    db.session.query(Subtask).filter(Subtask.id==id).delete()
+    db.session.commit()
+    subtasks = Subtask.query.filter(Subtask.task_id == taskid)
+    response_object = []
+    for subtask in subtasks:
+        response_dict = {'id': subtask.id,
+                        'user_id':subtask.user_id,
+                        'task_id':subtask.task_id,
+                        "created_at":subtask.created_at,"limit_at":subtask.limit_at,
+                        "sub_task":subtask.sub_task
+                        }
+        response_object.append(response_dict)
+    return jsonify(response_object)
 
