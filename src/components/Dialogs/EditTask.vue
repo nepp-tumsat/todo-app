@@ -25,14 +25,14 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="blue darken-1" text @click="$emit('close')"> Close </v-btn>
-      <v-btn color="blue darken-1" text @click="$emit('close')"> Save </v-btn>
+      <v-btn color="blue darken-1" text @click="$emit('save')"> Save </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 export default {
-  name: " EditTask",
+  name: "EditTask",
   props: {
     task: {
       type: Object,
@@ -46,7 +46,7 @@ export default {
         (v) => !!v || "subtask is required",
         (v) => (v && v.length <= 0) || "subtask must be less than 0 characters",
       ],
-      task: {
+      sample_task: {
         id: 1,
         title: "task1",
         done: false,
@@ -82,8 +82,8 @@ export default {
       ];
     },
     doneTask(task_id) {
-      let task = this.sample_list.filter((task) => task.id === task_id)[0];
-      task.done = !task.done;
+      let _task = this.sample_list.filter((task) => task.id === task_id)[0];
+      _task.done = !_task.done;
     },
     deleteTask(id) {
       console.log("aaa");

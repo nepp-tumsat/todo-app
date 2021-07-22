@@ -70,6 +70,7 @@
         v-show="Open_menu === 'Edit'"
         :task="selected_task"
         @close="closeDialog"
+        @save="onEditSave"
       />
       <add-subtask
         v-show="Open_menu === 'Add Subtask'"
