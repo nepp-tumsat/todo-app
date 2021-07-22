@@ -1,8 +1,6 @@
 <template>
   <v-card width="400px" class="mx-auto mt-5">
-    <v-cart-title>
-      <h1 class="display-1">ログイン</h1>
-    </v-cart-title>
+    <v-card-title>ログイン</v-card-title>
     <v-card-text>
       <v-form>
         <v-text-field
@@ -19,8 +17,12 @@
           v-model="password"
         >
         </v-text-field>
+        <v-alert text type="error" v-show="error_message">
+          <div>{{ error_message }}</div>
+        </v-alert>
         <v-card-actions>
-          <v-btn class="info" @click="submit">ログイン</v-btn>
+          <v-btn color="info" @click="submit">ログイン</v-btn>
+          <v-btn coler="success" @click="register">新規登録</v-btn>
         </v-card-actions>
       </v-form>
     </v-card-text>
@@ -34,10 +36,21 @@ export default {
     showPassword: false,
     name: "",
     password: "",
+    error_message: "",
   }),
   methods: {
     submit() {
-      console.log(this.name, this.password);
+      this.error_message = "";
+      // TODO: fix
+      if (this.name === "user1" && this.password === "password") {
+        this.$store.commit("login");
+        this.$router.push("/");
+      } else {
+        this.error_message = "ユーザー名かパスワードが違います";
+      }
+    },
+    register() {
+      this.$router.push("/register");
     },
   },
 };
