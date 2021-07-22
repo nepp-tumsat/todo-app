@@ -43,7 +43,12 @@ export default {
       this.error_message = "";
       // TODO: fix
       if (this.name === "user1" && this.password === "password") {
-        this.$store.commit("login");
+        const user_id = 1;
+        const user_name = "user1";
+        this.$store.dispatch("login", {
+          user_id: user_id,
+          user_name: user_name,
+        });
         this.$router.push("/");
       } else {
         this.error_message = "ユーザー名かパスワードが違います";

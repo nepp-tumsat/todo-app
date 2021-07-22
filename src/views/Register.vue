@@ -58,7 +58,11 @@ export default {
         })
         .then((res) => {
           const user_id = res.data.user_id;
-          this.$store.commit("login", user_id);
+          const user_name = res.data.username;
+          this.$store.dispatch("login", {
+            user_id: user_id,
+            user_name: user_name,
+          });
           this.$router.push("/");
         })
         .catch((err) => {
