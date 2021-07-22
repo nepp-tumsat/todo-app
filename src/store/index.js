@@ -6,9 +6,16 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     loggedIn: false,
+    token: "",
+  },
+  mutations: {
+    login(state) {
+      state.loggedIn = true;
+    },
+    logout(state) {
+      state.loggedIn = false;
+    },
   },
 });
-
-store.commit("increment");
 
 export default store;
