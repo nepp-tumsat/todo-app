@@ -60,25 +60,22 @@ def subtask_sample():
 # USER #
 ########
 
-# @app.route('/user', methods=['POST'])
-# def create_user():
-#     new_user = User()
-#     request_dict = request.get_json()
-#     new_user.username = request_dict['user_name']
-#     new_user.user_id = request_dict['password']
-#     db.session.add(new_user)
-#     db.session.commit()
+@app.route('/user', methods=['POST'])
+def create_user():
+    new_user = User()
+    request_dict = request.get_json()
+    new_user.username = request_dict['user_name']
+    new_user.password = request_dict['password']
+    new_user.email = request_dict['email']
 
-#     users = User.query.all()
-#     response_object = []
-#     for user in users:
-#         response_dict = {'id': user.id,
-#                         'username':user.username,
-#                         "password":user.password,
-#                         "created_at":user.created_at
-#                         }
-#         response_object.append(response_dict)
-#     return jsonify(response_object)
+    # DBへ追加
+    db.session.add(new_user)
+    db.session.commit()
+
+    response_dict = {'user_id': new_user.id,
+                    'username':new_user.username}
+
+    return jsonify(response_dict)
 
 @app.route('/user/<int:id>',methods=['DELETE'])
 def delete_user(id):

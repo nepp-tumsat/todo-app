@@ -10,6 +10,7 @@
         <v-form ref="form">
           <v-text-field v-model="name" label="Name"></v-text-field>
           <v-text-field v-model="password" label="password"></v-text-field>
+          <v-text-field v-model="email" label="email"></v-text-field>
 
           <v-alert text type="error" v-show="error_message">
             <div>{{ error_message }}</div>
@@ -31,12 +32,14 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Register",
   data() {
     return {
       name: "",
       password: "",
+      email: "",
       error_message: "",
     };
   },
@@ -47,13 +50,25 @@ export default {
         this.error_message = "名前とパスワードを入力してください";
         return;
       }
-      const user_id = 1;
-      this.$store.commit("login", user_id);
-      this.$router.push("/");
+      axios
+        .post(process.env.FLASK_HOST + "/user", {
+          user_name: this.name,
+          password: this.password,
+          email: this.email,
+        })
+        .then((res) => {
+          const user_id = res.data.user_id;
+          this.$store.commit("login", user_id);
+          this.$router.push("/");
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
     },
     clear() {
       this.name = "";
       this.password = "";
+      this.email = "";
     },
   },
 };

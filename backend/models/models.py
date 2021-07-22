@@ -5,8 +5,9 @@ from sqlalchemy.dialects.mysql import INTEGER
 class User(db.Model):
   __tablename__ = 'users'
   id = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-  username = db.Column(db.String(255), nullable=False, unique=True)
+  username = db.Column(db.String(255), nullable=False)
   password = db.Column(db.String(255), nullable=False)
+  email = db.Column(db.String(255), nullable=False, unique=True)
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
   tasks = db.relationship('Task',backref=db.backref('user',lazy=True))
   sub_tasks = db.relationship('Subtask',backref=db.backref('user',lazy=True))
