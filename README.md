@@ -14,10 +14,11 @@ todo-front
 todo-back
 ```
 
-# flaskでDB作成
+# flask で DB 作成
+
 ```
 # コンテナの中に入る
-$ docker exec -it todo_app bash
+$ docker exec -it todo_back bash
 
 > flask db init # migrationディレクトリ作成
 > flask db migrate -m "マイグレーションのコメント" # マイグレーションの実施
@@ -25,7 +26,7 @@ $ docker exec -it todo_app bash
 
 ```
 
-# DBアクセス
+# DB アクセス
 
 ```
 // ホストマシンからDBにアクセス
