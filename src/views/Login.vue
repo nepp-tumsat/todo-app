@@ -20,9 +20,13 @@
         <v-alert text type="error" v-show="error_message">
           <div>{{ error_message }}</div>
         </v-alert>
-        <v-card-actions>
-          <v-btn color="info" @click="submit">ログイン</v-btn>
-          <v-btn coler="success" @click="register">新規登録</v-btn>
+        <v-card-actions class="justify-center">
+          <v-btn color="info" @click="submit" width="100px">ログイン</v-btn>
+        </v-card-actions>
+        <v-card-actions class="justify-center">
+          <v-btn coler="success" @click="register" width="100px"
+            >新規登録</v-btn
+          >
         </v-card-actions>
       </v-form>
     </v-card-text>
@@ -41,9 +45,18 @@ export default {
   methods: {
     submit() {
       this.error_message = "";
+      if (this.name === "" && this.password === "") {
+        this.error_message = "ユーザー名とパスワードは必須です";
+        return;
+      }
       // TODO: fix
       if (this.name === "user1" && this.password === "password") {
-        this.$store.commit("login");
+        const user_id = 1;
+        const user_name = "user1";
+        this.$store.commit("login", {
+          user_id: user_id,
+          user_name: user_name,
+        });
         this.$router.push("/");
       } else {
         this.error_message = "ユーザー名かパスワードが違います";

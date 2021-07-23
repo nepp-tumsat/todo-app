@@ -1,10 +1,16 @@
 <template>
   <v-app id="inspire">
     <v-navigation-drawer v-model="drawer" app>
+      <v-list class="px-2" height="90px">
+        <v-list-item-avatar size="80px">
+          <img src="Nepp.jpg" />
+        </v-list-item-avatar>
+      </v-list>
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="text-h6"> Todo </v-list-item-title>
-          <v-list-item-subtitle> SPA Todo Application </v-list-item-subtitle>
+          <v-list-item-title class="text-h5">
+            {{ display_username }}
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -40,23 +46,23 @@
       <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
+      <v-btn v-if="user_name" @click="dialog = true" icon>
+        <v-icon>mdi-logout</v-icon>
       </v-btn>
     </v-app-bar>
 
     <v-main>
+      <v-dialog v-model="dialog" width="unset">
+        <logout @logout="onLogout" @close="onClose" />
+      </v-dialog>
       <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import Logout from "./components/Dialogs/Logout.vue";
+
 export default {
   data: () => ({
     drawer: false, // navigate barの有無を決める
@@ -64,6 +70,32 @@ export default {
       { title: "Todo", icon: "mdi-format-list-checks", to: "/" },
       { title: "About", icon: "mdi-help-box", to: "/about" },
     ],
+    display_username: "",
+    dialog: false,
   }),
+  components: {
+    Logout,
+  },
+  methods: {
+    onLogout() {
+      this.dialog = false;
+      this.$store.commit("logout");
+      // TODO: validationできたらtokenの有無で遷移させる
+      this.$router.push("/login");
+    },
+    onClose() {
+      this.dialog = false;
+    },
+  },
+  computed: {
+    user_name: function () {
+      return this.$store.getters.get_username;
+    },
+  },
+  watch: {
+    user_name(get_username) {
+      this.display_username = get_username;
+    },
+  },
 };
 </script>
