@@ -180,19 +180,18 @@ def edit_todo(id):
 
     db.session.commit()
 
-    tasks = Task.query.all()
-    response_object = []
-    for task in tasks:
-        response_dict = {'id': task.id,
-                        'user_id':task.user_id,
-                        "created_at":task.created_at,
-                        "limit_at":task.limit_at,
-                        'task':task.task
-                        }
-        response_object.append(response_dict)
-    return jsonify(response_object)
 
-@app.route('/task/<int:id>', methods=['PUT'])
+    res_obj = {
+        'id': edit_task.id,
+        'user_id': edit_task.user_id,
+        'created_at': edit_task.created_at,
+        'limit_at': edit_task.limit_at,
+        'task': edit_task.task,
+        'sub_tasks': edit_task.sub_tasks
+    }
+    return jsonify(res_obj)
+
+@app.route('/task/<int:id>/limit', methods=['PATCH'])
 def add_limit(id):
     edit_task=Task.query.get(id)
     request_dict = request.get_json()
@@ -200,17 +199,15 @@ def add_limit(id):
 
     db.session.commit()
 
-    tasks = Task.query.all()
-    response_object = []
-    for task in tasks:
-        response_dict = {'id': task.id,
-                        'user_id':task.user_id,
-                        "created_at":task.created_at,
-                        "limit_at":task.limit_at,
-                        'task':task.task
-                        }
-        response_object.append(response_dict)
-    return jsonify(response_object)
+    res_obj = {
+        'id': edit_task.id,
+        'user_id': edit_task.user_id,
+        'created_at': edit_task.created_at,
+        'limit_at': edit_task.limit_at,
+        'task': edit_task.task,
+        'sub_tasks': edit_task.sub_tasks
+    }
+    return jsonify(res_obj)
 
 
 @app.route('/task/<int:id>',methods=['DELETE'])
@@ -235,7 +232,7 @@ def delete_todo(id):
 # SUBTASK #
 ###########
 
-@app.route('/<int:task_id>/subtask',methods=['GET'])
+@app.route('/task/<int:task_id>/subtask',methods=['GET'])
 def subtask(task_id):
     subtasks = Subtask.query.filter(Subtask.task_id == task_id)
     response_object = []
@@ -249,18 +246,18 @@ def subtask(task_id):
         response_object.append(response_dict)
     return jsonify(response_object)
 
-@app.route('/<int:taskid>/subtask',methods=['POST'])
-def create_subtask(taskid):
+@app.route('/task/<int:task_id>/subtask',methods=['POST'])
+def create_subtask(task_id):
     new_subtask = Subtask()
     request_dict = request.get_json()
     new_subtask.sub_task = request_dict['subtask_name']
     new_subtask.user_id = request_dict['user_id']
-    new_subtask.task_id = taskid
+    new_subtask.task_id = task_id
 
     db.session.add(new_subtask)
     db.session.commit()
 
-    subtasks = Subtask.query.filter(Subtask.task_id == id)
+    subtasks = Subtask.query.filter(Subtask.task_id == task_id)
     response_object = []
     for subtask in subtasks:
         response_dict = {'id': subtask.id,
@@ -272,13 +269,13 @@ def create_subtask(taskid):
         response_object.append(response_dict)
     return jsonify(response_object)
 
-@app.route('/<int:taskid>/subtask/<int:id>', methods=['PATCH'])
-def edit_subtask(taskid,id):
-    edit_subtask=Subtask.query.get(id)
+@app.route('/task/<int:task_id>/subtask/<int:subtask_id>', methods=['PATCH'])
+def edit_subtask(task_id,subtask_id):
+    edit_subtask=Subtask.query.get(subtask_id)
     request_dict = request.get_json()
     edit_subtask.sub_task = request_dict['subtask_name']
     edit_subtask.limit_at = datetime.now()
-    subtasks = Subtask.query.filter(Subtask.task_id == taskid)
+    subtasks = Subtask.query.filter(Subtask.task_id == task_id)
     response_object = []
     for subtask in subtasks:
         response_dict = {'id': subtask.id,
@@ -290,11 +287,11 @@ def edit_subtask(taskid,id):
         response_object.append(response_dict)
     return jsonify(response_object)
 
-@app.route('/<int:taskid>/subtask/<int:id>', methods=['DELETE'])
-def delete_subtask(taskid,id):
-    db.session.query(Subtask).filter(Subtask.id==id).delete()
+@app.route('/task/<int:task_id>/subtask/<int:subtask_id>', methods=['DELETE'])
+def delete_subtask(task_id,subtask_id):
+    db.session.query(Subtask).filter(Subtask.id==subtask_id).delete()
     db.session.commit()
-    subtasks = Subtask.query.filter(Subtask.task_id == taskid)
+    subtasks = Subtask.query.filter(Subtask.task_id == task_id)
     response_object = []
     for subtask in subtasks:
         response_dict = {'id': subtask.id,
