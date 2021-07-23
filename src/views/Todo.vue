@@ -104,14 +104,12 @@
       </v-btn>
     </div>
     <div>
-      <v-snackbar v-model="snackbar" timeout="1000" multi-line>
-        Add New Task!!
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
+      <snack-bar
+        v-show="show_snackbar"
+        :show_snackbar="show_snackbar"
+        :message="snackbar_message"
+        @close="OnCloseSnackbar"
+      />
     </div>
   </div>
 </template>
@@ -122,6 +120,7 @@ import EditTask from "../components/Dialogs/EditTask.vue";
 import AddSubtask from "../components/Dialogs/AddSubtask.vue";
 import SelectLimit from "../components/Dialogs/SelectLimit.vue";
 import DeleteTask from "../components/Dialogs/DeleteTask.vue";
+import SnackBar from "../components/Shared/SnackBar.vue";
 
 const draggable = require("vuedraggable");
 export default {
@@ -131,19 +130,16 @@ export default {
     AddSubtask,
     SelectLimit,
     DeleteTask,
+    SnackBar,
     draggable: draggable,
   },
   data() {
     return {
       dialog: false,
-      day: this.todoDay(),
-      date: new Date().getDate(),
-      ord: this.nth(new Date().getDate()),
-      year: new Date().getFullYear(),
       newTaskTitle: "",
       tasks: [],
       sub_tasks: {},
-      snackbar: false,
+      show_snackbar: false,
       menus: [
         { title: "Edit" },
         { title: "Add Subtask" },
@@ -156,6 +152,7 @@ export default {
       user_id: 1,
       dragging: false,
       limit_date: "",
+      snackbar_message: "",
     };
   },
   computed: {
@@ -186,6 +183,10 @@ export default {
       this.selected_task = {};
       console.log("close dialog");
     },
+    OnCloseSnackbar() {
+      this.show_snackbar = false;
+      this.snackbar_message = "";
+    },
     addTask() {
       if (this.newTaskTitle.length < 1) {
         alert("タスク名を入力してください");
@@ -205,7 +206,8 @@ export default {
             done: false,
           });
           this.newTaskTitle = "";
-          this.snackbar = true;
+          this.show_snackbar = true;
+          this.snackbar_message = "Added Task!";
         })
         .catch((err) => {
           console.log("err", err);
@@ -223,46 +225,28 @@ export default {
       this.Open_menu = "";
       this.dialog = false;
       this.selected_task = {};
+      this.show_snackbar = true;
+      this.snackbar_message = "Deleted Task!";
     },
     onAddSave() {
       this.Open_menu = "";
       this.dialog = false;
+      this.show_snackbar = true;
+      this.snackbar_message = "Added New SubTask!";
     },
     onEditSave() {
       this.Open_menu = "";
       this.dialog = false;
+      this.show_snackbar = true;
+      this.snackbar_message = "Edited Task!";
     },
     onSelectLimit(date) {
       //TODO: taskのlimit_dateを保存する
       this.limit_date = date;
       this.Open_menu = "";
       this.dialog = false;
-    },
-    todoDay() {
-      const d = new Date();
-      const days = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      return days[d.getDay()];
-    },
-    nth(d) {
-      if (d > 3 && d < 21) return "th";
-      switch (d % 10) {
-        case 1:
-          return "st";
-        case 2:
-          return "nd";
-        case 3:
-          return "rd";
-        default:
-          return "th";
-      }
+      this.show_snackbar = true;
+      this.snackbar_message = "Selected Due Date!";
     },
   },
   filters: {
