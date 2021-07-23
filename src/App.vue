@@ -3,7 +3,7 @@
     <v-navigation-drawer v-model="drawer" app>
       <v-list class="px-2" height="90px">
         <v-list-item-avatar size="80px">
-          <img src="https://randomuser.me/api/portraits/women/81.jpg" />
+          <img src="Nepp.jpg" />
         </v-list-item-avatar>
       </v-list>
       <v-list-item>
