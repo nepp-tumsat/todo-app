@@ -173,15 +173,11 @@ export default {
       if (this.Open_menu !== "Sort") {
         this.dialog = true;
       }
-      console.log("dialog", this.dialog);
-      console.log(this.Open_menu);
-      console.log(this.selected_task);
     },
     closeDialog() {
       this.Open_menu = "";
       this.dialog = false;
       this.selected_task = {};
-      console.log("close dialog");
     },
     OnCloseSnackbar() {
       this.show_snackbar = false;
@@ -247,13 +243,6 @@ export default {
       this.dialog = false;
       this.show_snackbar = true;
       this.snackbar_message = "Selected Due Date!";
-    },
-  },
-  filters: {
-    capitalize: function (value) {
-      if (!value) return "";
-      value = value.toString();
-      return value.charAt(0).toUpperCase() + value.slice(1);
     },
   },
   created: function () {
