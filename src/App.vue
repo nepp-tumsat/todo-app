@@ -46,15 +46,23 @@
       <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
+      <v-btn v-if="user_name" @click="dialog = true" icon>
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-main>
+      <v-dialog v-model="dialog" width="unset">
+        <logout @logout="onLogout" @close="onClose" />
+      </v-dialog>
       <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import Logout from "./components/Dialogs/Logout.vue";
+
 export default {
   data: () => ({
     drawer: false, // navigate barの有無を決める
@@ -63,7 +71,22 @@ export default {
       { title: "About", icon: "mdi-help-box", to: "/about" },
     ],
     display_username: "",
+    dialog: false,
   }),
+  components: {
+    Logout,
+  },
+  methods: {
+    onLogout() {
+      this.dialog = false;
+      this.$store.commit("logout");
+      // TODO: validationできたらtokenの有無で遷移させる
+      this.$router.push("/login");
+    },
+    onClose() {
+      this.dialog = false;
+    },
+  },
   computed: {
     user_name: function () {
       return this.$store.getters.get_username;
