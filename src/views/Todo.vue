@@ -105,6 +105,7 @@
     </div>
     <div>
       <snack-bar
+        v-show="show_snackbar"
         :show_snackbar="show_snackbar"
         :message="snackbar_message"
         @close="OnCloseSnackbar"
@@ -196,36 +197,25 @@ export default {
         return;
       }
       if (event.keyCode !== 13) return;
-      this.tasks.push({
-        id: Date.now(),
-        title: this.newTaskTitle,
-        done: false,
-      });
-      this.newTaskTitle = "";
-      this.show_snackbar = true;
-      this.snackbar_message = "Add Task";
-      console.log(this.snackbar_message);
-      console.log(this.show_snackbar);
-      // axios
-      //   .post(process.env.FLASK_HOST + "/task", {
-      //     user_id: 1,
-      //     task_name: this.newTaskTitle,
-      //   })
-      //   .then((res) => {
-      //     const task_info = res.data;
-      //     this.tasks.push({
-      //       id: task_info.id,
-      //       title: task_info.task,
-      //       done: false,
-      //     });
-      //     this.newTaskTitle = "";
-      //     this.show_snackbar = true;
-      //     this.snackbar_message = "Add Task";
-      //     console.log("snackbar", this.snackbar_message);
-      //   })
-      //   .catch((err) => {
-      //     console.log("err", err);
-      //   });
+      axios
+        .post(process.env.FLASK_HOST + "/task", {
+          user_id: 1,
+          task_name: this.newTaskTitle,
+        })
+        .then((res) => {
+          const task_info = res.data;
+          this.tasks.push({
+            id: task_info.id,
+            title: task_info.task,
+            done: false,
+          });
+          this.newTaskTitle = "";
+          this.show_snackbar = true;
+          this.snackbar_message = "Add Task";
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
     },
     doneTask(task_id) {
       let task = this.tasks.filter((task) => task.id === task_id)[0];
