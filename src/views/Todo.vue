@@ -136,10 +136,6 @@ export default {
   data() {
     return {
       dialog: false,
-      day: this.todoDay(),
-      date: new Date().getDate(),
-      ord: this.nth(new Date().getDate()),
-      year: new Date().getFullYear(),
       newTaskTitle: "",
       tasks: [],
       sub_tasks: {},
@@ -211,7 +207,7 @@ export default {
           });
           this.newTaskTitle = "";
           this.show_snackbar = true;
-          this.snackbar_message = "Add Task";
+          this.snackbar_message = "Added Task!";
         })
         .catch((err) => {
           console.log("err", err);
@@ -229,47 +225,28 @@ export default {
       this.Open_menu = "";
       this.dialog = false;
       this.selected_task = {};
-      this.snackbar_message = "Delete Task";
+      this.show_snackbar = true;
+      this.snackbar_message = "Deleted Task!";
     },
     onAddSave() {
       this.Open_menu = "";
       this.dialog = false;
+      this.show_snackbar = true;
+      this.snackbar_message = "Added New SubTask!";
     },
     onEditSave() {
       this.Open_menu = "";
       this.dialog = false;
+      this.show_snackbar = true;
+      this.snackbar_message = "Edited Task!";
     },
     onSelectLimit(date) {
       //TODO: taskのlimit_dateを保存する
       this.limit_date = date;
       this.Open_menu = "";
       this.dialog = false;
-    },
-    todoDay() {
-      const d = new Date();
-      const days = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      return days[d.getDay()];
-    },
-    nth(d) {
-      if (d > 3 && d < 21) return "th";
-      switch (d % 10) {
-        case 1:
-          return "st";
-        case 2:
-          return "nd";
-        case 3:
-          return "rd";
-        default:
-          return "th";
-      }
+      this.show_snackbar = true;
+      this.snackbar_message = "Selected Due Date!";
     },
   },
   filters: {

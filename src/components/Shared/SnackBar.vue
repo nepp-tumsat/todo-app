@@ -1,6 +1,6 @@
 <template>
-  <v-snackbar v-model="show" multi-line timeout="2000">
-    {{ message }}
+  <v-snackbar v-model="show" timeout="2000">
+    <div class="text-center">{{ message }}</div>
     <template v-slot:action="{ attrs }">
       <v-btn color="pink" text v-bind="attrs" @click="$emit('close')">
         Close
