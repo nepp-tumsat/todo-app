@@ -53,7 +53,7 @@ export default {
       if (this.name === "user1" && this.password === "password") {
         const user_id = 1;
         const user_name = "user1";
-        this.$store.dispatch("login", {
+        this.$store.commit("login", {
           user_id: user_id,
           user_name: user_name,
         });
