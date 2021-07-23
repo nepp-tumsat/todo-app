@@ -104,14 +104,11 @@
       </v-btn>
     </div>
     <div>
-      <v-snackbar v-model="snackbar" timeout="1000" multi-line>
-        Add New Task!!
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
+      <snack-bar
+        :show_snackbar="show_snackbar"
+        :message="snackbar_message"
+        @close="OnCloseSnackbar"
+      />
     </div>
   </div>
 </template>
@@ -122,6 +119,7 @@ import EditTask from "../components/Dialogs/EditTask.vue";
 import AddSubtask from "../components/Dialogs/AddSubtask.vue";
 import SelectLimit from "../components/Dialogs/SelectLimit.vue";
 import DeleteTask from "../components/Dialogs/DeleteTask.vue";
+import SnackBar from "../components/Shared/SnackBar.vue";
 
 const draggable = require("vuedraggable");
 export default {
@@ -131,6 +129,7 @@ export default {
     AddSubtask,
     SelectLimit,
     DeleteTask,
+    SnackBar,
     draggable: draggable,
   },
   data() {
@@ -143,7 +142,7 @@ export default {
       newTaskTitle: "",
       tasks: [],
       sub_tasks: {},
-      snackbar: false,
+      show_snackbar: false,
       menus: [
         { title: "Edit" },
         { title: "Add Subtask" },
@@ -156,6 +155,7 @@ export default {
       user_id: 1,
       dragging: false,
       limit_date: "",
+      snackbar_message: "",
     };
   },
   computed: {
@@ -186,30 +186,46 @@ export default {
       this.selected_task = {};
       console.log("close dialog");
     },
+    OnCloseSnackbar() {
+      this.show_snackbar = false;
+      this.snackbar_message = "";
+    },
     addTask() {
       if (this.newTaskTitle.length < 1) {
         alert("タスク名を入力してください");
         return;
       }
       if (event.keyCode !== 13) return;
-      axios
-        .post(process.env.FLASK_HOST + "/task", {
-          user_id: 1,
-          task_name: this.newTaskTitle,
-        })
-        .then((res) => {
-          const task_info = res.data;
-          this.tasks.push({
-            id: task_info.id,
-            title: task_info.task,
-            done: false,
-          });
-          this.newTaskTitle = "";
-          this.snackbar = true;
-        })
-        .catch((err) => {
-          console.log("err", err);
-        });
+      this.tasks.push({
+        id: Date.now(),
+        title: this.newTaskTitle,
+        done: false,
+      });
+      this.newTaskTitle = "";
+      this.show_snackbar = true;
+      this.snackbar_message = "Add Task";
+      console.log(this.snackbar_message);
+      console.log(this.show_snackbar);
+      // axios
+      //   .post(process.env.FLASK_HOST + "/task", {
+      //     user_id: 1,
+      //     task_name: this.newTaskTitle,
+      //   })
+      //   .then((res) => {
+      //     const task_info = res.data;
+      //     this.tasks.push({
+      //       id: task_info.id,
+      //       title: task_info.task,
+      //       done: false,
+      //     });
+      //     this.newTaskTitle = "";
+      //     this.show_snackbar = true;
+      //     this.snackbar_message = "Add Task";
+      //     console.log("snackbar", this.snackbar_message);
+      //   })
+      //   .catch((err) => {
+      //     console.log("err", err);
+      //   });
     },
     doneTask(task_id) {
       let task = this.tasks.filter((task) => task.id === task_id)[0];
@@ -223,6 +239,7 @@ export default {
       this.Open_menu = "";
       this.dialog = false;
       this.selected_task = {};
+      this.snackbar_message = "Delete Task";
     },
     onAddSave() {
       this.Open_menu = "";
