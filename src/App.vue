@@ -36,17 +36,27 @@
           gradient="to top right, rgba(19,84,122,.5), rgba(128,208,199,.8)"
         ></v-img>
       </template>
-
       <!-- !null = true -->
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>Todo App</v-app-bar-title>
-
       <v-spacer></v-spacer>
-
-      <v-btn icon>
+      <v-btn
+        v-if="!searching && $store.state.loggedIn"
+        @click="searching = true"
+        icon
+      >
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
-      <v-btn v-if="user_name" @click="dialog = true" icon>
+      <v-text-field
+        v-if="searching"
+        v-model="search_word"
+        v-click-outside="onClickOutsideStandard"
+        prepend-inner-icon="mdi-magnify"
+        autofocus
+        outlined
+      >
+      </v-text-field>
+      <v-btn v-if="$store.state.loggedIn" @click="dialog = true" icon>
         <v-icon>mdi-logout</v-icon>
       </v-btn>
     </v-app-bar>
@@ -71,6 +81,8 @@ export default {
       { title: "About", icon: "mdi-help-box", to: "/about" },
     ],
     display_username: "",
+    searching: false,
+    search_word: "",
     dialog: false,
   }),
   components: {
@@ -86,6 +98,14 @@ export default {
     onClose() {
       this.dialog = false;
     },
+    onClickOutsideStandard() {
+      // v-click-outsideに式を渡しても代入されなかった
+      this.searching = false;
+
+      // wordの初期化
+      this.search_word = "";
+      this.$store.commit("search", "");
+    },
   },
   computed: {
     user_name: function () {
@@ -95,6 +115,9 @@ export default {
   watch: {
     user_name(get_username) {
       this.display_username = get_username;
+    },
+    search_word(new_word) {
+      this.$store.commit("search", new_word);
     },
   },
 };
