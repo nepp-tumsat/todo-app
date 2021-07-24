@@ -57,7 +57,6 @@ export default {
         })
         .then((res) => {
           const user_info = res.data.user_info;
-          console.log("res", res);
           this.$store.commit("login", user_info);
 
           this.$router.push("/");

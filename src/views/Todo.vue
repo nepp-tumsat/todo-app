@@ -137,7 +137,6 @@ export default {
     return {
       dialog: false,
       newTaskTitle: "",
-      all_tasks: [], // 全タスクを記憶する(基本変更しない)
       show_tasks: [],
       sub_tasks: {},
       show_snackbar: false,
@@ -169,12 +168,19 @@ export default {
     search_word: function () {
       return this.$store.getters.get_search_word;
     },
+    all_tasks: function () {
+      return this.$store.getters.get_all_tasks;
+    },
   },
   watch: {
     search_word(word) {
       this.show_tasks = this.all_tasks.filter(
         (task) => task.title.indexOf(word) !== -1
       );
+    },
+    all_tasks() {
+      // オブジェクトをコピー
+      this.show_tasks = [...this.$store.state.all_tasks];
     },
   },
   methods: {
@@ -202,7 +208,7 @@ export default {
       if (event.keyCode !== 13) return;
       axios
         .post(process.env.FLASK_HOST + "/task", {
-          user_id: 1,
+          user_id: this.$store.state.user_id,
           task_name: this.newTaskTitle,
         })
         .then((res) => {
@@ -259,40 +265,6 @@ export default {
       this.show_snackbar = true;
       this.snackbar_message = "Selected Due Date!";
     },
-  },
-  created: function () {
-    // TODO: fix
-    axios
-      .get(process.env.FLASK_HOST + "/task")
-      .then((res) => {
-        this.all_tasks = res.data.map(function (task) {
-          return {
-            id: task.id,
-            title: task.task,
-            done: false,
-          };
-        });
-        // オブジェクトをコピー
-        this.show_tasks = [...this.all_tasks];
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-    // subtask
-    this.sub_tasks = {
-      1: [
-        {
-          id: 1,
-          title: "sub_task1",
-          done: false,
-        },
-      ],
-    };
-    // axios.get(process.env.FLASK_HOST + "/subtask").then((res) => {
-    // res = {task_id: [sub_task1, sub_task2, ...]}
-    // this.sub_tasks = {'1':[{}, {},]}
-    // Object.keys(res.data).forEach()
-    // });
   },
 };
 </script>
