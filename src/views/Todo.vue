@@ -205,30 +205,31 @@ export default {
         alert("タスク名を入力してください");
         return;
       }
-      if (event.keyCode !== 13) return;
-      axios
-        .post(process.env.FLASK_HOST + "/task", {
-          user_id: this.$store.state.user_id,
-          task_name: this.newTaskTitle,
-        })
-        .then((res) => {
-          const task_info = res.data;
-          const new_task = {
-            id: task_info.id,
-            title: task_info.task,
-            done: false,
-          };
+      if (event.keyCode === 13 || event.keyCode === undefined) {
+        axios
+          .post(process.env.FLASK_HOST + "/task", {
+            user_id: this.$store.state.user_id,
+            task_name: this.newTaskTitle,
+          })
+          .then((res) => {
+            const task_info = res.data;
+            const new_task = {
+              id: task_info.id,
+              title: task_info.task,
+              done: false,
+            };
 
-          this.all_tasks.push(new_task);
-          this.show_tasks.push(new_task);
+            this.all_tasks.push(new_task);
+            this.show_tasks.push(new_task);
 
-          this.newTaskTitle = "";
-          this.show_snackbar = true;
-          this.snackbar_message = "Added Task!";
-        })
-        .catch((err) => {
-          console.log("err", err);
-        });
+            this.newTaskTitle = "";
+            this.show_snackbar = true;
+            this.snackbar_message = "Added Task!";
+          })
+          .catch((err) => {
+            console.log("err", err);
+          });
+      }
     },
     doneTask(task_id) {
       let task = this.all_tasks.filter((task) => task.id === task_id)[0];
@@ -268,8 +269,5 @@ export default {
     },
   },
   // ブラウザ更新した場合は必要
-  created() {
-    // ここでvalidationするとか？
-  },
 };
 </script>
