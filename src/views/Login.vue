@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Login",
   data: () => ({
@@ -49,18 +50,22 @@ export default {
         this.error_message = "ユーザー名とパスワードは必須です";
         return;
       }
-      // TODO: fix
-      if (this.name === "user1" && this.password === "password") {
-        const user_id = 1;
-        const user_name = "user1";
-        this.$store.commit("login", {
-          user_id: user_id,
-          user_name: user_name,
+      axios
+        .post(process.env.FLASK_HOST + "/login", {
+          user_name: this.name,
+          password: this.password,
+        })
+        .then((res) => {
+          const user_info = res.data.user_info;
+          console.log("res", res);
+          this.$store.commit("login", user_info);
+
+          this.$router.push("/");
+        })
+        .catch((err) => {
+          console.log(err);
+          this.error_message = "ユーザー名かパスワードが違います";
         });
-        this.$router.push("/");
-      } else {
-        this.error_message = "ユーザー名かパスワードが違います";
-      }
     },
     register() {
       this.$router.push("/register");

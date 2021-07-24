@@ -87,6 +87,40 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 #     response_object = {'message': 'Successfully Add SampleSubtask'}
 #     return jsonify(response_object)
 
+#########
+# LOGIN #
+#########
+
+# GETだとURLに情報が含まれる & キャッシュに残るため危険
+@app.route('/login', methods=['POST'])
+def login():
+  request_dict = request.get_json()
+  username = request_dict['user_name']
+  password = request_dict['password']
+
+  # SQLのANDはカンマ区切り
+  # .all()を付けないとクエリが取得される
+  # 参考: https://www.sukerou.com/2019/04/sqlalchemyandor.html
+  user = db.session.query(User).filter(User.username==username, User.password==password).all()
+
+  user_info = {}
+  if len(user) == 1:
+    message = 'Login Success'
+    user_info = {
+      'user_id': user[0].id,
+      'user_name': user[0].username
+    }
+  else:
+    # ヒットするユーザーが　0 or 2以上の場合
+    message = 'Unauthorized' if len(user) == 0 else 'Internal Server error'
+
+  response_object = {
+    'message': message,
+    'user_info': user_info
+  }
+
+  return jsonify(response_object)
+
 ########
 # USER #
 ########

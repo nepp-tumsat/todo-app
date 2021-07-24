@@ -272,7 +272,8 @@ export default {
             done: false,
           };
         });
-        this.show_tasks = this.all_tasks;
+        // オブジェクトをコピー
+        this.show_tasks = [...this.all_tasks];
       })
       .catch((err) => {
         console.log("err", err);
