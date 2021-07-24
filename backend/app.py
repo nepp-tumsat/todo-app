@@ -105,13 +105,15 @@ def login():
 
   user_info = {}
   if len(user) == 1:
+    status_code = 200
     message = 'Login Success'
     user_info = {
       'user_id': user[0].id,
       'user_name': user[0].username
     }
   else:
-    # ヒットするユーザーが　0 or 2以上の場合
+    # ヒットするユーザーが 0 or 2以上の場合
+    status_code = 500
     message = 'Unauthorized' if len(user) == 0 else 'Internal Server error'
 
   response_object = {
@@ -119,7 +121,7 @@ def login():
     'user_info': user_info
   }
 
-  return jsonify(response_object)
+  return jsonify(response_object), status_code
 
 ########
 # USER #

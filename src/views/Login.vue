@@ -62,7 +62,6 @@ export default {
           this.$router.push("/");
         })
         .catch((err) => {
-          console.log(err);
           this.error_message = "ユーザー名かパスワードが違います";
         });
     },
