@@ -259,12 +259,17 @@ export default {
     },
     onSelectLimit(date) {
       //TODO: taskのlimit_dateを保存する
+      // type of date is String
       this.limit_date = date;
       this.Open_menu = "";
       this.dialog = false;
       this.show_snackbar = true;
       this.snackbar_message = "Selected Due Date!";
     },
+  },
+  // ブラウザ更新した場合は必要
+  created() {
+    // ここでvalidationするとか？
   },
 };
 </script>
