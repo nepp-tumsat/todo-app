@@ -5,7 +5,7 @@ from sqlalchemy.dialects.mysql import INTEGER
 class User(db.Model):
   __tablename__ = 'users'
   id = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-  username = db.Column(db.String(255), nullable=False)
+  username = db.Column(db.String(255), nullable=False, unique=True)
   password = db.Column(db.String(255), nullable=False)
   email = db.Column(db.String(255), nullable=False, unique=True)
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
