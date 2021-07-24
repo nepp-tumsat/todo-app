@@ -11,10 +11,10 @@
       clearable
     ></v-text-field>
     <v-list class="pt-0" flat>
-      <v-alert text type="info" v-show="!show_list">
+      <v-alert text type="info" v-show="!CanShowList">
         <div>タスクはありません</div>
       </v-alert>
-      <draggable v-model="tasks" :disable="!Isdraggable">
+      <draggable v-model="show_tasks" :disable="!Isdraggable">
         <div v-for="task in reversed_tasks" :key="task.id">
           <v-list-item
             @click="doneTask(task.id)"
@@ -137,7 +137,8 @@ export default {
     return {
       dialog: false,
       newTaskTitle: "",
-      tasks: [],
+      all_tasks: [], // 全タスクを記憶する(基本変更しない)
+      show_tasks: [],
       sub_tasks: {},
       show_snackbar: false,
       menus: [
@@ -159,11 +160,21 @@ export default {
     Isdraggable: function () {
       return this.Open_menu === "Sort" ? true : false;
     },
-    show_list: function () {
-      return this.tasks.length > 0 ? true : false;
+    CanShowList: function () {
+      return this.all_tasks.length > 0 ? true : false;
     },
     reversed_tasks: function () {
-      return this.tasks.slice().reverse();
+      return this.show_tasks.slice().reverse();
+    },
+    search_word: function () {
+      return this.$store.getters.get_search_word;
+    },
+  },
+  watch: {
+    search_word(word) {
+      this.show_tasks = this.all_tasks.filter(
+        (task) => task.title.indexOf(word) !== -1
+      );
     },
   },
   methods: {
@@ -196,11 +207,15 @@ export default {
         })
         .then((res) => {
           const task_info = res.data;
-          this.tasks.push({
+          const new_task = {
             id: task_info.id,
             title: task_info.task,
             done: false,
-          });
+          };
+
+          this.all_tasks.push(new_task);
+          this.show_tasks.push(new_task);
+
           this.newTaskTitle = "";
           this.show_snackbar = true;
           this.snackbar_message = "Added Task!";
@@ -210,12 +225,12 @@ export default {
         });
     },
     doneTask(task_id) {
-      let task = this.tasks.filter((task) => task.id === task_id)[0];
+      let task = this.all_tasks.filter((task) => task.id === task_id)[0];
       task.done = !task.done;
     },
     onDelete() {
       // TODO: API接続
-      this.tasks = this.tasks.filter(
+      this.tasks = this.all_tasks.filter(
         (task) => task.id !== this.selected_task.id
       );
       this.Open_menu = "";
@@ -250,14 +265,14 @@ export default {
     axios
       .get(process.env.FLASK_HOST + "/task")
       .then((res) => {
-        this.tasks = res.data.map(function (task) {
+        this.all_tasks = res.data.map(function (task) {
           return {
             id: task.id,
             title: task.task,
             done: false,
           };
         });
-        console.log(this.tasks);
+        this.show_tasks = this.all_tasks;
       })
       .catch((err) => {
         console.log("err", err);
