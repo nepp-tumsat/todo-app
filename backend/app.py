@@ -135,9 +135,24 @@ def list_user():
                         'password':user.password,
                         "created_at":user.created_at,
                         "email":user.email,
-
                         }
         response_object.append(response_dict)
+
+    return jsonify(response_object)
+
+# userごとにtask一覧を返す
+@app.route('/user/<int:id>/task', methods=['GET'])
+def user_tasks(id):
+    user_tasks = db.session.query(Task).filter(Task.user_id == id).all()
+    response_object = []
+    for task in user_tasks:
+      response_dict = {'id': task.id,
+                      'user_id':task.user_id,
+                      'created_at':task.created_at,
+                      'limit_at':task.limit_at,
+                      'task': task.task,
+                      }
+      response_object.append(response_dict)
 
     return jsonify(response_object)
 
