@@ -21,7 +21,7 @@
           <div>{{ error_message }}</div>
         </v-alert>
         <v-card-actions class="justify-center">
-          <v-btn color="info" @click="submit" width="100px">ログイン</v-btn>
+          <v-btn color="info" @click="login" width="100px">ログイン</v-btn>
         </v-card-actions>
         <v-card-actions class="justify-center">
           <v-btn coler="success" @click="register" width="100px"
@@ -43,7 +43,7 @@ export default {
     error_message: "",
   }),
   methods: {
-    submit() {
+    login() {
       this.error_message = "";
       if (this.name === "" && this.password === "") {
         this.error_message = "ユーザー名とパスワードは必須です";
