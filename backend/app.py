@@ -81,9 +81,9 @@ def list_user():
     return jsonify(response_object)
 
 # userごとにtask一覧を返す
-@app.route('/user/<int:id>/task', methods=['GET'])
-def user_tasks(id):
-    user_tasks = db.session.query(Task).filter(Task.user_id == id).all()
+@app.route('/user/<int:user_id>/task', methods=['GET'])
+def user_tasks(user_id):
+    user_tasks = db.session.query(Task).filter(Task.user_id == user_id).all()
     response_object = []
     for task in user_tasks:
         response_dict = {
@@ -118,9 +118,9 @@ def create_user():
 
     return jsonify(response_dict)
 
-@app.route('/user/<int:id>',methods=['DELETE'])
-def delete_user(id):
-    db.session.query(User).filter(User.id==id).delete()
+@app.route('/user/<int:user_id>',methods=['DELETE'])
+def delete_user(user_id):
+    db.session.query(User).filter(User.id==user_id).delete()
     db.session.commit()
     response_object = {'message': 'Successfully Delete User'}
     return jsonify(response_object)
@@ -164,9 +164,9 @@ def create_todo():
     }
     return jsonify(res_obj)
 
-@app.route('/task/<int:id>', methods=['PATCH'])
-def edit_todo(id):
-    edit_task=Task.query.get(id)
+@app.route('/task/<int:task_id>', methods=['PATCH'])
+def edit_todo(task_id):
+    edit_task=Task.query.get(task_id)
     request_dict = request.get_json()
     edit_task.task = request_dict['task_name']
 
@@ -183,11 +183,9 @@ def edit_todo(id):
     }
     return jsonify(res_obj)
 
-@app.route('/task/<int:id>/limit', methods=['PATCH'])
-def add_limit(id):
-    s = "08"
-    print("aaaaa",int(s))
-    edit_task=Task.query.get(id)
+@app.route('/task/<int:task_id>/limit', methods=['PATCH'])
+def add_limit(task_id):
+    edit_task=Task.query.get(task_id)
     request_dict = request.get_json()
     str_datetime = request_dict['limit_at'].replace('-', '')
     edit_task.limit_at = datetime.strptime(str_datetime, '%Y%m%d')
@@ -203,9 +201,9 @@ def add_limit(id):
     }
     return jsonify(res_obj)
 
-@app.route('/task/<int:id>/delete',methods=['PATCH'])
-def delete_task(id):
-    delete_task=Task.query.get(id)
+@app.route('/task/<int:task_id>/delete',methods=['PATCH'])
+def delete_task(task_id):
+    delete_task=Task.query.get(task_id)
     delete_task.show=False
     db.session.commit()
 
@@ -220,9 +218,9 @@ def delete_task(id):
     }
     return jsonify(res_obj)
 
-@app.route('/task/<int:id>/completed',methods=['PATCH'])
-def complered_task(id):
-    completed_task=Task.query.get(id)
+@app.route('/task/<int:task_id>/completed',methods=['PATCH'])
+def complered_task(task_id):
+    completed_task=Task.query.get(task_id)
     completed_task.done=True
     db.session.commit()
 
@@ -237,9 +235,9 @@ def complered_task(id):
     }
     return jsonify(res_obj)
 
-@app.route('/task/<int:id>',methods=['DELETE'])
-def delete_todo(id):
-    db.session.query(Task).filter(Task.id==id).delete()
+@app.route('/task/<int:task_id>',methods=['DELETE'])
+def delete_todo(task_id):
+    db.session.query(Task).filter(Task.id==task_id).delete()
     db.session.commit()
 
     tasks = Task.query.all()
