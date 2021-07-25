@@ -219,7 +219,7 @@ def delete_task(task_id):
     return jsonify(res_obj)
 
 @app.route('/task/<int:task_id>/completed',methods=['PATCH'])
-def complered_task(task_id):
+def completed_task(task_id):
     completed_task=Task.query.get(task_id)
     completed_task.done=True
     db.session.commit()
@@ -256,6 +256,20 @@ def delete_todo(task_id):
 ###########
 # SUBTASK #
 ###########
+
+# show=Trueのsubtaskを全て取得する
+@app.route('/subtasks', methods=['GET'])
+def get_all_show_subtasks():
+  # db操作
+  db_task_ids = db.session.query(Task.id).filter(Task.show==True).all()
+  subtasks = db.session.query(Subtask).filter(Subtask.task_id.in_([1]), Subtask.show==True).all()
+
+  # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
+  task_id_dict = {task.id : [] for task in db_task_ids}
+  for subtask in subtasks:
+    task_id_dict[subtask.task_id].append(subtask.toDict())
+
+  return jsonify({'subtasks': task_id_dict})
 
 @app.route('/task/<int:task_id>/subtasks',methods=['GET'])
 def subtask(task_id):
