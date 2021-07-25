@@ -87,7 +87,7 @@ def user_tasks(user_id):
     db_task_ids = db.session.query(Task.id).filter(Task.user_id == user_id, Task.show==True).all()
     task_ids = [task_obj.id for task_obj in db_task_ids]
     # task取得
-    user_tasks = db.session.query(Task).filter(Task.user_id == user_id).all()
+    user_tasks = db.session.query(Task).filter(Task.user_id == user_id, Task.show==True).all()
     user_subtasks = db.session.query(Subtask).filter(Subtask.user_id==user_id,
                                                     Subtask.task_id.in_(task_ids),
                                                     Subtask.show==True).all()
