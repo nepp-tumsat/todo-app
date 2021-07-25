@@ -81,23 +81,31 @@ def list_user():
     return jsonify(response_object)
 
 # userごとにtask一覧を返す
-@app.route('/user/<int:user_id>/task', methods=['GET'])
+@app.route('/user/<int:user_id>/all_tasks', methods=['GET'])
 def user_tasks(user_id):
-    user_tasks = db.session.query(Task).filter(Task.user_id == user_id).all()
-    response_object = []
-    for task in user_tasks:
-        response_dict = {
-                        'id': task.id,
-                        'user_id':task.user_id,
-                        'created_at':task.created_at,
-                        'limit_at':task.limit_at,
-                        'task': task.task,
-                        'done': task.done,
-                        'show': task.show
-                        }
-        response_object.append(response_dict)
+    # Userのshow=Trueのtask_idのみ取得
+    db_task_ids = db.session.query(Task.id).filter(Task.user_id == user_id, Task.show==True).all()
 
-    return jsonify(response_object)
+    # task取得
+    user_tasks = db.session.query(Task).filter(Task.user_id == user_id).all()
+    user_subtasks = db.session.query(Subtask).filter(Subtask.user_id==user_id,
+                                                    Subtask.task_id.in_(db_task_ids),
+                                                    Subtask.show==True).all()
+
+    res_tasks = []
+    for task in user_tasks:
+        res_tasks.append(task.toDict())
+
+    # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
+    res_subtasks = {task.id : [] for task in db_task_ids}
+    for subtask in user_subtasks:
+      res_subtasks[subtask.task_id].append(subtask.toDict())
+
+    return jsonify({
+                    'tasks'   : res_tasks,
+                    'subtasks': res_subtasks
+                    })
+
 
 @app.route('/user', methods=['POST'])
 def create_user():
@@ -256,20 +264,6 @@ def delete_todo(task_id):
 ###########
 # SUBTASK #
 ###########
-
-# show=Trueのsubtaskを全て取得する
-@app.route('/subtasks', methods=['GET'])
-def get_all_show_subtasks():
-  # db操作
-  db_task_ids = db.session.query(Task.id).filter(Task.show==True).all()
-  subtasks = db.session.query(Subtask).filter(Subtask.task_id.in_([1]), Subtask.show==True).all()
-
-  # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
-  task_id_dict = {task.id : [] for task in db_task_ids}
-  for subtask in subtasks:
-    task_id_dict[subtask.task_id].append(subtask.toDict())
-
-  return jsonify({'subtasks': task_id_dict})
 
 @app.route('/task/<int:task_id>/subtasks',methods=['GET'])
 def subtask(task_id):
