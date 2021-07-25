@@ -17,7 +17,7 @@ class Task(db.Model):
   id = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
   user_id = db.Column(INTEGER(unsigned=True), db.ForeignKey('users.id', onupdate='CASCADE', ondelete='CASCADE'))
   show = db.Column(db.Boolean, nullable=False, default=True)
-  done = db.Column(db.Boolean, nullable=False, default=True)
+  done = db.Column(db.Boolean, nullable=False, default=False)
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
   limit_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
   task = db.Column(db.String(255), nullable=True)
