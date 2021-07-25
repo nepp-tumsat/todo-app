@@ -21,27 +21,30 @@
         </v-text-field>
       </div>
       <div class="text-h8">サブタスクリスト</div>
-      <v-alert text type="info" v-show="!show_list">
+      <!-- <v-alert text type="info" v-show="!show_list">
         <div>サブタスクはありません</div>
-      </v-alert>
-      <div v-show="show_list" v-for="task in sample_list" :key="task.id">
+      </v-alert> -->
+      <div v-for="sub_task in sub_tasks" :key="sub_task.id">
         <v-list-item
-          @click="doneTask(task.id)"
-          :class="{ 'blue lighten-5': task.done }"
+          @click="doneTask(sub_task.id)"
+          :class="{ 'blue lighten-5': sub_task.done }"
         >
           <template v-slot:default>
             <v-list-item-action>
-              <v-checkbox :input-value="task.done" color="primary"></v-checkbox>
+              <v-checkbox
+                :input-value="sub_task.done"
+                color="primary"
+              ></v-checkbox>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title
-                :class="{ '.text-decoration-line-through': task.done }"
+                :class="{ '.text-decoration-line-through': sub_task.done }"
               >
-                {{ task.title }}
+                {{ sub_task.sub_task }}
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn @click.stop="deleteTask(task.id)" icon>
+              <v-btn @click.stop="deleteTask(sub_task.id)" icon>
                 <v-icon color="primary lighten-1">mdi-delete</v-icon>
               </v-btn>
             </v-list-item-action>
@@ -59,6 +62,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "AddSubtask",
   props: {
@@ -70,28 +75,22 @@ export default {
   data() {
     return {
       newSubtaskTitle: "",
-      subtask_Rules: [
-        (v) => !!v || "subtask is required",
-        (v) => (v && v.length <= 0) || "subtask must be less than 0 characters",
-      ],
-      sample_list: [
-        {
-          id: 1,
-          title: "sample1",
-          done: false,
-        },
-        {
-          id: 2,
-          title: "sample2",
-          done: false,
-        },
-      ],
+      sub_tasks: [],
       dummy_id: 2,
     };
   },
   computed: {
-    show_list: function () {
-      return this.sample_list.length > 0 ? true : false;
+    // show_list: function () {
+    //   console.log(this.sub_tasks);
+    //   return this.sub_tasks.length > 0 ? true : false;
+    // },
+    sub_tasks_obj: function () {
+      return this.$store.getters.get_all_subtasks_obj;
+    },
+  },
+  watch: {
+    task() {
+      this.sub_tasks = this.sub_tasks_obj[this.task.id];
     },
   },
   methods: {
@@ -103,23 +102,38 @@ export default {
       ];
     },
     addSubTask() {
-      const new_subtask = {
-        title: this.newSubtaskTitle,
-        id: this.dummy_id + 1,
-        done: false,
-      };
-      this.sample_list.push(new_subtask);
-      this.newSubtaskTitle = "";
-      this.dummy_id += 1;
+      // task_idがあればsubtaskを追加可能
+      axios
+        .post(process.env.FLASK_HOST + "/task/" + this.task.id + "/subtask", {
+          subtask_name: this.newSubtaskTitle,
+          user_id: this.$store.state.user_id,
+        })
+        .then((res) => {
+          const new_subtask = res.data;
+          console.log(new_subtask);
+          π;
+          console.log("type", typeof new_subtask);
+          console.log("subtask_id", new_subtask.id);
+          this.sub_tasks.push({
+            id: new_subtask.id,
+            title: new_subtask.sub_task,
+            done: new_subtask.done,
+          });
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
     },
     doneTask(task_id) {
       let task = this.sample_list.filter((task) => task.id === task_id)[0];
       task.done = !task.done;
     },
     deleteTask(id) {
-      console.log("aaa");
       this.sample_list = this.sample_list.filter((task) => task.id !== id);
     },
+  },
+  created: function () {
+    this.sub_tasks = this.sub_tasks_obj[this.task.id];
   },
 };
 </script>

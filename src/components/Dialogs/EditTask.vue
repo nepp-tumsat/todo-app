@@ -6,10 +6,10 @@
     <v-card-text>
       <v-text-field v-model="task_title" label="タスク名"></v-text-field>
       <div class="text-h8">サブタスクリスト</div>
-      <v-alert text type="info" v-show="!show_list">
+      <v-alert text type="info" v-show="!can_show_list">
         <div>サブタスクはありません</div>
       </v-alert>
-      <div v-show="show_list" v-for="sample in sample_list" :key="sample.id">
+      <div v-show="can_show_list" v-for="sample in sample_list" :key="sample.id">
         <v-list-item>
           <template v-slot:default>
             <v-list-item-content>
@@ -69,7 +69,7 @@ export default {
     task_title: function () {
       return this.task.title;
     },
-    show_list: function () {
+    can_show_list: function () {
       return this.sample_list.length > 0 ? true : false;
     },
   },

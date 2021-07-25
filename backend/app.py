@@ -83,13 +83,13 @@ def list_user():
 # userごとにtask一覧を返す
 @app.route('/user/<int:user_id>/all_tasks', methods=['GET'])
 def user_tasks(user_id):
-    # Userのshow=Trueのtask_idのみ取得
+    # Userのshow=Trueのtask_idのみ取得(まだmodelオブジェクト)
     db_task_ids = db.session.query(Task.id).filter(Task.user_id == user_id, Task.show==True).all()
-
+    task_ids = [task_obj.id for task_obj in db_task_ids]
     # task取得
     user_tasks = db.session.query(Task).filter(Task.user_id == user_id).all()
     user_subtasks = db.session.query(Subtask).filter(Subtask.user_id==user_id,
-                                                    Subtask.task_id.in_(db_task_ids),
+                                                    Subtask.task_id.in_(task_ids),
                                                     Subtask.show==True).all()
 
     res_tasks = []
@@ -97,10 +97,10 @@ def user_tasks(user_id):
         res_tasks.append(task.toDict())
 
     # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
-    res_subtasks = {task.id : [] for task in db_task_ids}
+    res_subtasks = {id:[] for id in task_ids}
     for subtask in user_subtasks:
       res_subtasks[subtask.task_id].append(subtask.toDict())
-
+    print('subtask', res_subtasks)
     return jsonify({
                     'tasks'   : res_tasks,
                     'subtasks': res_subtasks
@@ -279,7 +279,8 @@ def subtask(task_id):
         response_object.append(response_dict)
     return jsonify(response_object)
 
-@app.route('/task/<int:task_id>/subtasks',methods=['POST'])
+# まとめてsubtaskが追加されることはないから単数形にします
+@app.route('/task/<int:task_id>/subtask',methods=['POST'])
 def create_subtask(task_id):
     new_subtask = Subtask()
     request_dict = request.get_json()
@@ -290,17 +291,18 @@ def create_subtask(task_id):
     db.session.add(new_subtask)
     db.session.commit()
 
-    subtasks = Subtask.query.filter(Subtask.task_id == task_id)
-    response_object = []
-    for subtask in subtasks:
-        response_dict = {'id': subtask.id,
-                        'user_id':subtask.user_id,
-                        'task_id':subtask.task_id,
-                        "created_at":subtask.created_at,"limit_at":subtask.limit_at,
-                        "sub_task":subtask.sub_task
-                        }
-        response_object.append(response_dict)
-    return jsonify(response_object)
+    # subtasks = Subtask.query.filter(Subtask.task_id == task_id)
+    # response_object = []
+    # for subtask in subtasks:
+    #     response_dict = {'id': subtask.id,
+    #                     'user_id':subtask.user_id,
+    #                     'task_id':subtask.task_id,
+    #                     "created_at":subtask.created_at,"limit_at":subtask.limit_at,
+    #                     "sub_task":subtask.sub_task
+    #                     }
+    #     response_object.append(response_dict)
+    
+    return jsonify(new_subtask.toDict())
 
 @app.route('/task/<int:task_id>/subtasks/<int:subtask_id>', methods=['PATCH'])
 def edit_subtask(task_id,subtask_id):

@@ -59,6 +59,9 @@ const store = new Vuex.Store({
     get_all_tasks(state) {
       return state.all_tasks;
     },
+    get_all_subtasks_obj(state) {
+      return state.all_subtasks_obj;
+    },
   },
 });
 
