@@ -95,7 +95,7 @@
         x-large
         min-width="300"
         fixed
-        bottom　
+        bottom
         color="success"
         :style="{ left: '50%', transform: 'translateX(-50%)' }"
         @click="Open_menu = false"
