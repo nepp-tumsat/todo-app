@@ -16,8 +16,8 @@ class Task(db.Model):
   __tablename__ = 'tasks'
   id = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
   user_id = db.Column(INTEGER(unsigned=True), db.ForeignKey('users.id', onupdate='CASCADE', ondelete='CASCADE'))
-  show = db.Column(db.Boolean, nullable=False, default=True)
-  done = db.Column(db.Boolean, nullable=False, default=False)
+  show = db.Column(db.Boolean, nullable=False, default=True, server_default="true")
+  done = db.Column(db.Boolean, nullable=False, default=False, server_default="false")
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
   limit_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
   task = db.Column(db.String(255), nullable=True)
@@ -26,8 +26,8 @@ class Task(db.Model):
 class Subtask(db.Model):
   __tablename__ = 'sub_tasks'
   id = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False, autoincrement=True)
-  show = db.Column(db.Boolean, nullable=False, default=True)
-  done = db.Column(db.Boolean, nullable=False, default=False)
+  show = db.Column(db.Boolean, nullable=False, default=True, server_default="true")
+  done = db.Column(db.Boolean, nullable=False, default=False, server_default="false")
   user_id = db.Column(INTEGER(unsigned=True), db.ForeignKey('users.id', onupdate='CASCADE', ondelete='CASCADE'))
   task_id = db.Column(INTEGER(unsigned=True), db.ForeignKey('tasks.id', onupdate='CASCADE', ondelete='CASCADE'))
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
