@@ -24,11 +24,8 @@
       <!-- <v-alert text type="info" v-show="!show_list">
         <div>サブタスクはありません</div>
       </v-alert> -->
-      <div v-for="sub_task in sub_tasks" :key="sub_task.id">
-        <v-list-item
-          @click="doneTask(sub_task.id)"
-          :class="{ 'blue lighten-5': sub_task.done }"
-        >
+      <div v-for="sub_task in show_tasks" :key="sub_task.id">
+        <v-list-item :class="{ 'blue lighten-5': sub_task.done }">
           <template v-slot:default>
             <v-list-item-action>
               <v-checkbox
@@ -40,14 +37,14 @@
               <v-list-item-title
                 :class="{ '.text-decoration-line-through': sub_task.done }"
               >
-                {{ sub_task.sub_task }}
+                {{ sub_task.title }}
               </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-action>
+            <!-- <v-list-item-action>
               <v-btn @click.stop="deleteTask(sub_task.id)" icon>
                 <v-icon color="primary lighten-1">mdi-delete</v-icon>
               </v-btn>
-            </v-list-item-action>
+            </v-list-item-action> -->
           </template>
         </v-list-item>
         <v-divider></v-divider>
@@ -75,65 +72,50 @@ export default {
   data() {
     return {
       newSubtaskTitle: "",
-      sub_tasks: [],
-      dummy_id: 2,
+      select_task: this.task,
+      show_subtask: [],
     };
   },
   computed: {
-    // show_list: function () {
-    //   console.log(this.sub_tasks);
-    //   return this.sub_tasks.length > 0 ? true : false;
-    // },
-    sub_tasks_obj: function () {
-      return this.$store.getters.get_all_subtasks_obj;
+    sub_tasks: function () {
+      return this.$store.getters.get_all_subtasks;
     },
-  },
-  watch: {
-    task() {
-      this.sub_tasks = this.sub_tasks_obj[this.task.id];
+
+    show_tasks: function () {
+      return this.sub_tasks.filter(
+        (subtask) => subtask.task_id === this.task.id
+      );
     },
   },
   methods: {
-    list_subtask() {
-      this.sub_tasks = [
-        {
-          title: "sample1",
-        },
-      ];
-    },
     addSubTask() {
       // task_idがあればsubtaskを追加可能
       axios
-        .post(process.env.FLASK_HOST + "/task/" + this.task.id + "/subtask", {
-          subtask_name: this.newSubtaskTitle,
-          user_id: this.$store.state.user_id,
-        })
+        .post(
+          process.env.FLASK_HOST + "/task/" + this.this_task.id + "/subtask",
+          {
+            subtask_name: this.newSubtaskTitle,
+            user_id: this.$store.state.user_id,
+          }
+        )
         .then((res) => {
           const new_subtask = res.data;
-          console.log(new_subtask);
-          π;
-          console.log("type", typeof new_subtask);
-          console.log("subtask_id", new_subtask.id);
-          this.sub_tasks.push({
-            id: new_subtask.id,
-            title: new_subtask.sub_task,
-            done: new_subtask.done,
-          });
+          this.$store.commit("add_subtask", new_subtask);
         })
         .catch((err) => {
           console.log("err", err);
         });
     },
     doneTask(task_id) {
-      let task = this.sample_list.filter((task) => task.id === task_id)[0];
+      let task = this.show_tasks.filter((task) => task.id === task_id)[0];
       task.done = !task.done;
     },
-    deleteTask(id) {
-      this.sample_list = this.sample_list.filter((task) => task.id !== id);
-    },
+    // deleteTask(id) {
+    //   this.show_tasks = this.show_tasks.filter((task) => task.id !== id);
+    // },
   },
-  created: function () {
-    this.sub_tasks = this.sub_tasks_obj[this.task.id];
-  },
+  // created: function () {
+  //   this.sub_tasks = this.sub_tasks_obj[this.this_task.id];
+  // },
 };
 </script>

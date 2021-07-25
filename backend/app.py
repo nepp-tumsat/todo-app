@@ -97,10 +97,12 @@ def user_tasks(user_id):
         res_tasks.append(task.toDict())
 
     # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
-    res_subtasks = {id:[] for id in task_ids}
-    for subtask in user_subtasks:
-      res_subtasks[subtask.task_id].append(subtask.toDict())
-    print('subtask', res_subtasks)
+    # res_subtasks = {id:[] for id in task_ids}
+    # for subtask in user_subtasks:
+    #   res_subtasks[subtask.task_id].append(subtask.toDict())
+
+    res_subtasks = [subtask.toDict() for subtask in user_subtasks]
+
     return jsonify({
                     'tasks'   : res_tasks,
                     'subtasks': res_subtasks
