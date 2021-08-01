@@ -236,15 +236,21 @@ export default {
       task.done = !task.done;
     },
     onDelete() {
-      // TODO: API接続
-      this.tasks = this.all_tasks.filter(
-        (task) => task.id !== this.selected_task.id
-      );
+      const task_id = this.selected_task.id;
+      axios
+        .patch(process.env.FLASK_HOST + "/task/" + task_id + "/delete")
+        .then((res) => {
+          this.show_tasks = this.show_tasks.filter(
+            (task) => task.id !== this.selected_task.id
+          );
+          this.show_snackbar = true;
+          this.snackbar_message = res.data.message;
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
       this.Open_menu = "";
       this.dialog = false;
-      this.selected_task = {};
-      this.show_snackbar = true;
-      this.snackbar_message = "Deleted Task!";
     },
     onAddSubTask(subtask_info) {
       const task_id = subtask_info.task_id;
@@ -260,14 +266,14 @@ export default {
           new_subtasks_arr.forEach((subtask_obj) => {
             this.$store.commit("add_subtask", subtask_obj);
           });
+          this.show_snackbar = true;
+          this.snackbar_message = "Added New SubTask!";
         })
         .catch((err) => {
           console.log("err", err);
         });
       this.Open_menu = "";
       this.dialog = false;
-      this.show_snackbar = true;
-      this.snackbar_message = "Added New SubTask!";
     },
     onEditSave() {
       this.Open_menu = "";
