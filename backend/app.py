@@ -281,30 +281,43 @@ def subtask(task_id):
         response_object.append(response_dict)
     return jsonify(response_object)
 
-# まとめてsubtaskが追加されることはないから単数形にします
-@app.route('/task/<int:task_id>/subtask',methods=['POST'])
+@app.route('/task/<int:task_id>/subtasks',methods=['POST'])
 def create_subtask(task_id):
-    new_subtask = Subtask()
-    request_dict = request.get_json()
-    new_subtask.sub_task = request_dict['subtask_name']
-    new_subtask.user_id = request_dict['user_id']
-    new_subtask.task_id = task_id
+  request_dict = request.get_json()
+  user_id = request_dict['user_id']
+  sub_task_list = request_dict['subtasks']
+  new_subtasks_list = [Subtask(
+                    user_id = user_id,
+                    task_id = subtask['task_id'],
+                    sub_task = subtask['title']
+                  ) for subtask in sub_task_list]
 
-    db.session.add(new_subtask)
+  # 複数追加
+  status_code = 200
+  response = {
+    'message': '',
+    'new_subtasks_arr':[]
+  }
+
+  try:
+    db.session.add_all(new_subtasks_list)
     db.session.commit()
 
-    # subtasks = Subtask.query.filter(Subtask.task_id == task_id)
-    # response_object = []
-    # for subtask in subtasks:
-    #     response_dict = {'id': subtask.id,
-    #                     'user_id':subtask.user_id,
-    #                     'task_id':subtask.task_id,
-    #                     "created_at":subtask.created_at,"limit_at":subtask.limit_at,
-    #                     "sub_task":subtask.sub_task
-    #                     }
-    #     response_object.append(response_dict)
-    
-    return jsonify(new_subtask.toDict())
+  except Exception as err:
+    status_code = 500
+    response['message'] = 'db error'
+    return jsonify(response), status_code
+
+  else:
+    send_subtasks_list = [{
+        'id' : subtask.id,
+        'task_id' : subtask.task_id,
+        'title' : subtask.sub_task,
+        'done' : subtask.done
+      } for subtask in new_subtasks_list]
+    response['new_subtasks_arr'] = send_subtasks_list
+    response['message'] = 'success'
+    return jsonify(response), status_code
 
 @app.route('/task/<int:task_id>/subtasks/<int:subtask_id>', methods=['PATCH'])
 def edit_subtask(task_id,subtask_id):

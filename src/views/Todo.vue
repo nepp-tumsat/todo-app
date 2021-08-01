@@ -75,7 +75,7 @@
         v-show="Open_menu === 'Add Subtask'"
         :task="selected_task"
         @close="closeDialog"
-        @addsave="onAddSave"
+        @add_save="onAddSubTask"
       />
       <select-limit
         v-show="Open_menu === 'Select Limit'"
@@ -246,7 +246,24 @@ export default {
       this.show_snackbar = true;
       this.snackbar_message = "Deleted Task!";
     },
-    onAddSave() {
+    onAddSubTask(subtask_info) {
+      const task_id = subtask_info.task_id;
+      const subtasks_arr = subtask_info.subtasks_arr;
+      axios
+        .post(process.env.FLASK_HOST + "/task/" + task_id + "/subtasks", {
+          subtasks: subtasks_arr,
+          user_id: this.$store.state.user_id,
+        })
+        .then((res) => {
+          const new_subtasks_arr = res.data.new_subtasks_arr;
+          // storeに全て追加する
+          new_subtasks_arr.forEach((subtask_obj) => {
+            this.$store.commit("add_subtask", subtask_obj);
+          });
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
       this.Open_menu = "";
       this.dialog = false;
       this.show_snackbar = true;
