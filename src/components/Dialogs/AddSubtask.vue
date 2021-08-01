@@ -2,7 +2,7 @@
   <v-card class="pa-md-4 mx-lg-auto" width="800px">
     <v-card-title>
       <div class="mx-n4">
-        <span class="text-h4">{{ selected_task }}</span>
+        <span class="text-h4">サブタスクを追加</span>
       </div>
     </v-card-title>
     <v-card-text>
@@ -25,17 +25,14 @@
         <div>サブタスクはありません</div>
       </v-alert>
       <div v-for="subtask in listing_subtasks" :key="subtask.id">
-        <v-list-item
-          @click="doneTask(subtask.id)"
-          :class="{ 'blue lighten-5': subtask.done }"
-        >
+        <v-list-item :class="{ 'blue lighten-5': subtask.done }">
           <template v-slot:default>
-            <v-list-item-action>
+            <!-- <v-list-item-action>
               <v-checkbox
                 :input-value="subtask.done"
                 color="primary"
               ></v-checkbox>
-            </v-list-item-action>
+            </v-list-item-action> -->
             <v-list-item-content>
               <v-list-item-title
                 :class="{ '.text-decoration-line-through': subtask.done }"
@@ -43,11 +40,11 @@
                 {{ subtask.title }}
               </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-action>
+            <!-- <v-list-item-action>
               <v-btn @click.stop="deleteTask(subtask.id)" icon>
                 <v-icon color="primary lighten-1">mdi-delete</v-icon>
               </v-btn>
-            </v-list-item-action>
+            </v-list-item-action> -->
           </template>
         </v-list-item>
         <v-divider></v-divider>
@@ -120,26 +117,34 @@ export default {
       this.ChangeSubtask = true;
       this.newSubtaskTitle = "";
     },
-    doneTask(subtask_id) {
-      let subtask = this.listing_subtasks.filter(
-        (subtask) => subtask.id === subtask_id
-      )[0];
-      subtask.done = !subtask.done;
-      this.ChangeSubtask = true;
-      console.log("store subtask", this.$store.state.all_subtasks);
-      console.log("this.listing_subtask", this.listing_subtasks);
-    },
-    deleteTask(subtask_id) {
-      this.listing_subtasks = this.listing_subtasks.filter(
-        (subtask) => subtask.id !== subtask_id
-      );
-      this.ChangeSubtask = true;
-    },
+
+    // ここら辺のメソッドあるけど, REST的にはPATCHなので、ここに含めない方がいいかも
+    // doneTask(subtask_id) {
+    //   let subtask = this.listing_subtasks.filter(
+    //     (subtask) => subtask.id === subtask_id
+    //   )[0];
+    //   subtask.done = !subtask.done;
+    //   this.ChangeSubtask = true;
+    //   console.log("store subtask", this.$store.state.all_subtasks);
+    //   console.log("this.listing_subtask", this.listing_subtasks);
+    // },
+    // deleteTask(subtask_id) {
+    //   this.listing_subtasks = this.listing_subtasks.filter(
+    //     (subtask) => subtask.id !== subtask_id
+    //   );
+    //   this.ChangeSubtask = true;
+    // },
     send_save_info() {
+      const already_subtask_ids = this.copy_store_subtasks.map((subtask) => {
+        return subtask.id;
+      });
+      const only_added_subtask_arr = this.listing_subtasks.filter(
+        (listing_subtask) => !already_subtask_ids.includes(listing_subtask.id)
+      );
+
       const send_subtask_info = {
         task_id: this.task.id,
-        listing_subtask: this.listing_subtasks,
-        ChangeSubtask: this.ChangeSubtask,
+        subtasks_arr: only_added_subtask_arr,
       };
       this.$emit("add_save", send_subtask_info);
     },

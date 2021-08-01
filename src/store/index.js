@@ -58,7 +58,7 @@ const store = new Vuex.Store({
       state.search_word = word;
     },
     add_subtask(state, subtask) {
-      state.subtask.push({
+      state.all_subtasks.push({
         id: subtask.id,
         task_id: subtask.task_id,
         title: subtask.sub_task,
