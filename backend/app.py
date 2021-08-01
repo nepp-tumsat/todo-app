@@ -211,22 +211,29 @@ def add_limit(task_id):
     }
     return jsonify(res_obj)
 
+# showカラムをFalseにする
 @app.route('/task/<int:task_id>/delete',methods=['PATCH'])
-def delete_task(task_id):
-    delete_task=Task.query.get(task_id)
-    delete_task.show=False
+def hide_task(task_id):
+  res_obj = {
+    'message' : ''
+  }
+  status_code = 200
+
+  try:
+    hide_task = db.session.query(Task).filter(Task.id == task_id).first()
+    hide_task.show = False
     db.session.commit()
 
-    res_obj = {
-        'id': delete_task.id,
-        'user_id': delete_task.user_id,
-        'created_at': delete_task.created_at,
-        'limit_at': delete_task.limit_at,
-        'task': delete_task.task,
-        'done': delete_task.done,
-        'show': delete_task.show
-    }
-    return jsonify(res_obj)
+  except Exception as err:
+    print('err', err)
+    res_obj['message'] = 'db error'
+    status_code = 500
+
+  else:
+    res_obj['message'] = 'Deleted Task!'
+
+  finally:
+    return jsonify(res_obj), status_code
 
 @app.route('/task/<int:task_id>/completed',methods=['PATCH'])
 def completed_task(task_id):
