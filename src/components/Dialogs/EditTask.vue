@@ -3,29 +3,43 @@
     <v-card-title>
       <span class="text-h3">タスクの編集</span>
     </v-card-title>
-    <v-card-text>
-      <v-text-field v-model="task_title" label="タスク名"></v-text-field>
-      <div class="text-h8">サブタスクリスト</div>
-      <v-alert text type="info" v-show="!can_show_list">
-        <div>サブタスクはありません</div>
-      </v-alert>
-      <div v-show="can_show_list" v-for="sample in sample_list" :key="sample.id">
-        <v-list-item>
-          <template v-slot:default>
-            <v-list-item-content>
-              <v-text-field
-                v-model="sample.title"
-                label="サブタスク名"
-              ></v-text-field>
-            </v-list-item-content>
-          </template>
-        </v-list-item>
-      </div>
-    </v-card-text>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <v-card-text>
+        <v-text-field
+          v-model="task.title"
+          label="タスク名"
+          :rules="all_task_Rules"
+        ></v-text-field>
+        <div class="text-h8">サブタスクリスト</div>
+        <v-alert text type="info" v-show="!CanShowList">
+          <div>サブタスクはありません</div>
+        </v-alert>
+        <div
+          v-show="CanShowList"
+          v-for="subtask in listing_subtasks"
+          :key="subtask.id"
+        >
+          <v-list-item>
+            <template v-slot:default>
+              <v-list-item-content>
+                <v-text-field
+                  v-model="subtask.title"
+                  label="サブタスク名"
+                  :rules="all_task_Rules"
+                ></v-text-field>
+              </v-list-item-content>
+            </template>
+          </v-list-item>
+        </div>
+      </v-card-text>
+    </v-form>
+    <v-alert text type="error" v-show="show_alert">
+      <div>入力に誤りがあります</div>
+    </v-alert>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="blue darken-1" text @click="$emit('close')"> Close </v-btn>
-      <v-btn color="blue darken-1" text @click="$emit('save')"> Save </v-btn>
+      <v-btn color="blue darken-1" text @click="save_edit"> Save </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -41,54 +55,57 @@ export default {
   },
   data() {
     return {
-      newSubtaskTitle: "",
-      subtask_Rules: [
-        (v) => !!v || "subtask is required",
-        (v) => (v && v.length <= 0) || "subtask must be less than 0 characters",
-      ],
-      sample_task: {
-        id: 1,
-        title: "task1",
-        done: false,
-      },
-      sample_list: [
-        {
-          id: 1,
-          title: "sample1",
-          done: false,
-        },
-        {
-          id: 2,
-          title: "sample2",
-          done: false,
-        },
-      ],
+      valid: true,
+      show_alert: false,
+      all_task_Rules: [(value) => !!value || "入力必須です"],
+      store_subtasks: [],
+      listing_subtasks: [],
+      selected_task: this.task,
     };
   },
-  computed: {
-    task_title: function () {
-      return this.task.title;
+  watch: {
+    task(new_task) {
+      this.selected_task = new_task;
+      this.store_subtasks = this.$store.state.all_subtasks;
+      // deep copy
+      this.copy_store_subtasks = this.store_subtasks.map((subtask) => ({
+        ...subtask,
+      }));
+      this.listing_subtasks = this.copy_store_subtasks.filter(
+        (subtask) => subtask.task_id === this.selected_task.id
+      );
+      this.ChangeSubtask = false;
     },
-    can_show_list: function () {
-      return this.sample_list.length > 0 ? true : false;
+  },
+  computed: {
+    CanShowList: function () {
+      return this.listing_subtasks.length > 0 ? true : false;
     },
   },
   methods: {
-    list_subtask() {
-      this.sub_tasks = [
-        {
-          title: "sample1",
-        },
-      ];
+    save_edit() {
+      if (!this.valid) {
+        this.show_alert = true;
+        return;
+      }
+      // 親に渡すのはタスク名とサブタスク全て
+      const send_all_task_info = {
+        task_info: this.selected_task,
+        subtask_info: this.listing_subtasks,
+      };
+      console.log(send_all_task_info);
+      this.$emit("save", send_all_task_info);
     },
-    doneTask(task_id) {
-      let _task = this.sample_list.filter((task) => task.id === task_id)[0];
-      _task.done = !_task.done;
-    },
-    deleteTask(id) {
-      console.log("aaa");
-      this.sample_list = this.sample_list.filter((task) => task.id !== id);
-    },
+  },
+  created: function () {
+    this.store_subtasks = this.$store.state.all_subtasks;
+    // deep copy
+    this.copy_store_subtasks = this.store_subtasks.map((subtask) => ({
+      ...subtask,
+    }));
+    this.listing_subtasks = this.copy_store_subtasks.filter(
+      (subtask) => subtask.task_id === this.selected_task.id
+    );
   },
 };
 </script>

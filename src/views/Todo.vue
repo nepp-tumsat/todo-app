@@ -275,11 +275,29 @@ export default {
       this.Open_menu = "";
       this.dialog = false;
     },
-    onEditSave() {
+    onEditSave(all_task_info) {
+      console.log(all_task_info);
+      const task_info = all_task_info.task_info;
+      const subtask_info = all_task_info.subtask_info;
+      console.log(task_info.id);
+      // task更新
+      axios
+        .patch(process.env.FLASK_HOST + "/task/" + task_info.id, {
+          task_name: task_info.title,
+        })
+        .then((res) => {
+          const snackbar_message = res.data.message;
+          const task_info = res.data.task_info;
+          // storeを更新すればshow_taskも更新される
+          this.$store.commit("update_task", task_info);
+          this.show_snackbar = true;
+          this.snackbar_message = snackbar_message;
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
       this.Open_menu = "";
       this.dialog = false;
-      this.show_snackbar = true;
-      this.snackbar_message = "Edited Task!";
     },
     onSelectLimit(date) {
       //TODO: taskのlimit_dateを保存する

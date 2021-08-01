@@ -176,22 +176,34 @@ def create_todo():
 
 @app.route('/task/<int:task_id>', methods=['PATCH'])
 def edit_todo(task_id):
+  status_code = 200
+  res_obj = {
+    'message' : '',
+    'task_info' : {}
+  }
+
+  try:
     edit_task=Task.query.get(task_id)
     request_dict = request.get_json()
     edit_task.task = request_dict['task_name']
-
     db.session.commit()
 
+  except Exception as err:
+    status_code = 500
+    res_obj['message'] = 'db error'
 
-    res_obj = {
-        'id': edit_task.id,
-        'user_id': edit_task.user_id,
-        'created_at': edit_task.created_at,
-        'limit_at': edit_task.limit_at,
-        'task': edit_task.task,
-        # 'sub_tasks': edit_task.sub_tasks
+  else:
+    res_obj['message'] = 'Edited Task!'
+    task_info = {
+      'id': edit_task.id,
+      'created_at': edit_task.created_at,
+      'limit_at': edit_task.limit_at,
+      'title': edit_task.task,
     }
-    return jsonify(res_obj)
+    res_obj['task_info'] = task_info
+
+  finally:
+    return jsonify(res_obj), status_code
 
 @app.route('/task/<int:task_id>/limit', methods=['PATCH'])
 def add_limit(task_id):

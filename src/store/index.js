@@ -65,6 +65,18 @@ const store = new Vuex.Store({
         done: false,
       });
     },
+    update_task(state, task_info) {
+      // 一致するtask_idだけ入れ替える
+      state.all_tasks = state.all_tasks.map((task) => {
+        if (task.id === task_info.id) {
+          return {
+            id: task_info.id,
+            title: task_info.title,
+            done: task_info.done,
+          };
+        }
+      });
+    },
   },
   getters: {
     get_username(state) {
