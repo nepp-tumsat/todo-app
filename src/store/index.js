@@ -75,6 +75,7 @@ const store = new Vuex.Store({
             done: task_info.done,
           };
         }
+        return task;
       });
     },
   },

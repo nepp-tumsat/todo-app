@@ -6,7 +6,7 @@
     <v-form ref="form" v-model="valid" lazy-validation>
       <v-card-text>
         <v-text-field
-          v-model="task.title"
+          v-model="selected_task.title"
           label="タスク名"
           :rules="all_task_Rules"
         ></v-text-field>
@@ -60,12 +60,13 @@ export default {
       all_task_Rules: [(value) => !!value || "入力必須です"],
       store_subtasks: [],
       listing_subtasks: [],
-      selected_task: this.task,
+      selected_task: {},
+      sample: "",
     };
   },
   watch: {
     task(new_task) {
-      this.selected_task = new_task;
+      this.selected_task = { ...new_task };
       this.store_subtasks = this.$store.state.all_subtasks;
       // deep copy
       this.copy_store_subtasks = this.store_subtasks.map((subtask) => ({
@@ -98,6 +99,7 @@ export default {
     },
   },
   created: function () {
+    this.selected_task = { ...this.task };
     this.store_subtasks = this.$store.state.all_subtasks;
     // deep copy
     this.copy_store_subtasks = this.store_subtasks.map((subtask) => ({

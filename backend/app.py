@@ -199,6 +199,7 @@ def edit_todo(task_id):
       'created_at': edit_task.created_at,
       'limit_at': edit_task.limit_at,
       'title': edit_task.task,
+      'done': edit_task.done
     }
     res_obj['task_info'] = task_info
 
