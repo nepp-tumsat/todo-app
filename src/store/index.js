@@ -65,6 +65,42 @@ const store = new Vuex.Store({
         done: false,
       });
     },
+    update_task(state, task_info) {
+      // 一致するtask_idだけ入れ替える
+      state.all_tasks = state.all_tasks.map((task) => {
+        if (task.id === task_info.id) {
+          return {
+            id: task_info.id,
+            title: task_info.title,
+            done: task_info.done,
+          };
+        }
+        return task;
+      });
+    },
+    update_subtask(state, subtask_info) {
+      const update_subtask_ids = subtask_info.map((subtask) => {
+        return subtask.id;
+      });
+
+      const hash_subtasks = subtask_info.reduce((hash, subtask) => {
+        hash[subtask.id] = subtask;
+        return hash;
+      }, {});
+
+      state.all_subtasks = state.all_subtasks.map((subtask) => {
+        if (update_subtask_ids.includes(subtask.id)) {
+          let update_subtask = hash_subtasks[subtask.id];
+          return {
+            id: update_subtask.id,
+            task_id: update_subtask.task_id,
+            title: update_subtask.title,
+            done: update_subtask.done,
+          };
+        }
+        return subtask;
+      });
+    },
   },
   getters: {
     get_username(state) {

@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
+from sqlalchemy.sql import case
 
 from backend.database import init_db,db
 from backend.models import User, Task, Subtask
@@ -96,11 +97,6 @@ def user_tasks(user_id):
     for task in user_tasks:
         res_tasks.append(task.toDict())
 
-    # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
-    # res_subtasks = {id:[] for id in task_ids}
-    # for subtask in user_subtasks:
-    #   res_subtasks[subtask.task_id].append(subtask.toDict())
-
     res_subtasks = [subtask.toDict() for subtask in user_subtasks]
 
     return jsonify({
@@ -175,23 +171,38 @@ def create_todo():
     return jsonify(res_obj)
 
 @app.route('/task/<int:task_id>', methods=['PATCH'])
-def edit_todo(task_id):
-    edit_task=Task.query.get(task_id)
-    request_dict = request.get_json()
-    edit_task.task = request_dict['task_name']
+def update_edited_todo(task_id):
+  status_code = 200
+  res_obj = {
+    'message' : '',
+    'task_info' : {}
+  }
 
+  try:
+    request_dict = request.get_json()
+    edit_task = db.session.query(Task).filter(Task.id == task_id).first()
+    edit_task.task = request_dict['task_name']
     db.session.commit()
 
+  except Exception as err:
+    db.session.rollback()
+    status_code = 500
+    res_obj['message'] = 'db error'
 
-    res_obj = {
-        'id': edit_task.id,
-        'user_id': edit_task.user_id,
-        'created_at': edit_task.created_at,
-        'limit_at': edit_task.limit_at,
-        'task': edit_task.task,
-        # 'sub_tasks': edit_task.sub_tasks
+  else:
+    res_obj['message'] = 'Edited Task!'
+    task_info = {
+      'id': edit_task.id,
+      'created_at': edit_task.created_at,
+      'limit_at': edit_task.limit_at,
+      'title': edit_task.task,
+      'done': edit_task.done
     }
-    return jsonify(res_obj)
+    res_obj['task_info'] = task_info
+
+  finally:
+    db.session.close()
+    return jsonify(res_obj), status_code
 
 @app.route('/task/<int:task_id>/limit', methods=['PATCH'])
 def add_limit(task_id):
@@ -311,6 +322,7 @@ def create_subtask(task_id):
     db.session.commit()
 
   except Exception as err:
+    db.session.rollback()
     status_code = 500
     response['message'] = 'db error'
     return jsonify(response), status_code
@@ -322,27 +334,53 @@ def create_subtask(task_id):
         'title' : subtask.sub_task,
         'done' : subtask.done
       } for subtask in new_subtasks_list]
+
     response['new_subtasks_arr'] = send_subtasks_list
     response['message'] = 'success'
+
+  finally:
+    db.session.close()
     return jsonify(response), status_code
 
-@app.route('/task/<int:task_id>/subtasks/<int:subtask_id>', methods=['PATCH'])
-def edit_subtask(task_id,subtask_id):
-    edit_subtask=Subtask.query.get(subtask_id)
-    request_dict = request.get_json()
-    edit_subtask.sub_task = request_dict['subtask_name']
-    edit_subtask.limit_at = datetime.now()
-    subtasks = Subtask.query.filter(Subtask.task_id == task_id)
-    response_object = []
-    for subtask in subtasks:
-        response_dict = {'id': subtask.id,
-                        'user_id':subtask.user_id,
-                        'task_id':subtask.task_id,
-                        "created_at":subtask.created_at,"limit_at":subtask.limit_at,
-                        "sub_task":subtask.sub_task
-                        }
-        response_object.append(response_dict)
-    return jsonify(response_object)
+@app.route('/task/<int:task_id>/subtasks/', methods=['PATCH'])
+def update_edited_subtasks(task_id):
+  request_dict = request.get_json()
+  subtask_arr = request_dict['subtask_info']
+  print('subtask_arr', subtask_arr)
+
+  subtask_ids = list(map(lambda subtask: subtask['id'], subtask_arr))
+  subtask_title_dict = { subtask['id']:subtask['title'] for subtask in subtask_arr}
+
+  response = {}
+  try:
+    status_code = 200
+
+    update_subtasks = db.session.query(Subtask).filter(
+      Subtask.id.in_(subtask_ids)
+    ).update({
+      Subtask.sub_task: case(
+        subtask_title_dict,
+        value=Subtask.id, # valueにcaseで比較する列を指定
+        else_=''
+      )
+    }, synchronize_session=False)
+
+    print('update_subtasks', update_subtasks)
+
+    db.session.commit()
+
+  except Exception as err:
+    db.session.rollback()
+    status_code = 500
+    response['message'] = 'db error'
+
+  else:
+    response['message'] = 'success'
+    response['subtask_info'] = subtask_arr
+
+  finally:
+    db.session.close()
+    return jsonify(response), status_code
 
 @app.route('/task/<int:task_id>/subtasks/<int:subtask_id>', methods=['DELETE'])
 def delete_subtask(task_id,subtask_id):

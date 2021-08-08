@@ -16,13 +16,14 @@ class User(db.Model):
     return f'<User {self.id} {self.username}>'
 
   def toDict(self):
-      return {
-          'id': self.id,
-          'username': self.username,
-          'password': self.password,
-          'email': self.email,
-          'created_at': self.created_at,
-      }
+    # pythonではself.xxxでクラス変数にアクセスできる
+    return {
+      'id': self.id,
+      'username': self.username,
+      'password': self.password,
+      'email': self.email,
+      'created_at': self.created_at,
+    }
 
 class Task(db.Model):
   __tablename__ = 'tasks'
@@ -39,15 +40,15 @@ class Task(db.Model):
     return f'<Task {self.id} {self.task}>'
 
   def toDict(self):
-      return {
-          'id': self.id,
-          'user_id': self.user_id,
-          'task': self.task,
-          'show': self.show,
-          'done': self.done,
-          'created_at': self.created_at,
-          'limit_at': self.limit_at,
-      }
+    return {
+      'id': self.id,
+      'user_id': self.user_id,
+      'task': self.task,
+      'show': self.show,
+      'done': self.done,
+      'created_at': self.created_at,
+      'limit_at': self.limit_at,
+    }
 
 class Subtask(db.Model):
   __tablename__ = 'sub_tasks'
@@ -64,13 +65,13 @@ class Subtask(db.Model):
     return f'<Subtask {self.id} {self.sub_task}>'
 
   def toDict(self):
-      return {
-          'id': self.id,
-          'user_id': self.user_id,
-          'task_id': self.task_id,
-          'sub_task': self.sub_task,
-          'show': self.show,
-          'done': self.done,
-          'created_at': self.created_at,
-          'limit_at': self.limit_at,
-      }
+    return {
+      'id': self.id,
+      'user_id': self.user_id,
+      'task_id': self.task_id,
+      'sub_task': self.sub_task,
+      'show': self.show,
+      'done': self.done,
+      'created_at': self.created_at,
+      'limit_at': self.limit_at,
+    }
