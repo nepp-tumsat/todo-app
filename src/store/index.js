@@ -66,6 +66,12 @@ const store = new Vuex.Store({
         done: false,
       });
     },
+    delete_task(state, delete_task_info) {
+      const delete_task_id = delete_task_info.id;
+      state.all_tasks = state.all_tasks.filter(
+        (task) => task.id !== delete_task_id
+      );
+    },
     update_task(state, new_task_info) {
       // 一致するtask_idだけ入れ替える
       state.all_tasks = state.all_tasks.map((task) => {

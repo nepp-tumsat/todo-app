@@ -241,7 +241,7 @@ def add_limit(task_id):
 # showカラムをFalseにする
 @app.route('/task/<int:task_id>/delete',methods=['PATCH'])
 def hide_task(task_id):
-  res_obj = {
+  response = {
     'message' : ''
   }
   status_code = 200
@@ -252,15 +252,17 @@ def hide_task(task_id):
     db.session.commit()
 
   except Exception as err:
-    print('err', err)
-    res_obj['message'] = 'db error'
+    db.session.rollback()
+    response['message'] = 'db error'
     status_code = 500
 
   else:
-    res_obj['message'] = 'Deleted Task!'
+    response['task_info'] = hide_task.toDict()
+    response['message'] = 'Deleted Task!'
 
   finally:
-    return jsonify(res_obj), status_code
+    db.session.close()
+    return jsonify(response), status_code
 
 @app.route('/task/<int:task_id>/completed',methods=['PATCH'])
 def completed_task(task_id):
