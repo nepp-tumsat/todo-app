@@ -50,7 +50,7 @@ def login():
     }
   else:
     # ヒットするユーザーが 0 or 2以上の場合
-    status_code = 500
+    status_code = 401
     message = 'Unauthorized' if len(user) == 0 else 'Internal Server error'
 
   response_object = {
@@ -206,21 +206,37 @@ def update_edited_todo(task_id):
 
 @app.route('/task/<int:task_id>/limit', methods=['PATCH'])
 def add_limit(task_id):
-    edit_task=Task.query.get(task_id)
-    request_dict = request.get_json()
-    str_datetime = request_dict['limit_at'].replace('-', '')
-    edit_task.limit_at = datetime.strptime(str_datetime, '%Y%m%d')
+  response = {
+    'message' : '',
+    'task_info' : {}
+  }
 
+  request_dict = request.get_json()
+  str_datetime = request_dict['limit_at'].replace('-', '')
+
+  try:
+    edit_task=Task.query.get(task_id)
+    edit_task.limit_at = datetime.strptime(str_datetime, '%Y%m%d')
     db.session.commit()
 
-    res_obj = {
+  except Exception as err:
+    db.session.rollback()
+    status_code = 500
+    response['message'] = 'db error'
+
+  else:
+    response['task_info'] = {
         'id': edit_task.id,
-        'user_id': edit_task.user_id,
         'created_at': edit_task.created_at,
         'limit_at': edit_task.limit_at,
-        'task': edit_task.task,
+        'title': edit_task.task,
     }
-    return jsonify(res_obj)
+    response['message'] = 'success'
+    status_code = 200
+
+  finally:
+    db.session.close()
+    return jsonify(response), status_code
 
 # showカラムをFalseにする
 @app.route('/task/<int:task_id>/delete',methods=['PATCH'])
@@ -342,6 +358,7 @@ def create_subtask(task_id):
     db.session.close()
     return jsonify(response), status_code
 
+# task_idは使ってないから/subtasks/だけでもいいかも？
 @app.route('/task/<int:task_id>/subtasks/', methods=['PATCH'])
 def update_edited_subtasks(task_id):
   request_dict = request.get_json()
