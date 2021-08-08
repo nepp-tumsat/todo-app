@@ -58,29 +58,40 @@ export default {
       valid: true,
       show_alert: false,
       all_task_Rules: [(value) => !!value || "入力必須です"],
-      store_subtasks: [],
       listing_subtasks: [],
       selected_task: {},
-      sample: "",
     };
   },
+  computed: {
+    all_subtasks: function () {
+      return this.$store.getters.get_all_subtasks;
+    },
+    CanShowList: function () {
+      return this.listing_subtasks.length > 0 ? true : false;
+    },
+  },
   watch: {
+    // プロパティ監視
     task(new_task) {
       this.selected_task = { ...new_task };
-      this.store_subtasks = this.$store.state.all_subtasks;
+
       // deep copy
-      this.copy_store_subtasks = this.store_subtasks.map((subtask) => ({
+      this.copy_store_subtasks = this.all_subtasks.map((subtask) => ({
         ...subtask,
       }));
+
       this.listing_subtasks = this.copy_store_subtasks.filter(
         (subtask) => subtask.task_id === this.selected_task.id
       );
-      this.ChangeSubtask = false;
     },
-  },
-  computed: {
-    CanShowList: function () {
-      return this.listing_subtasks.length > 0 ? true : false;
+    all_subtasks() {
+      this.copy_store_subtasks = this.all_subtasks.map((subtask) => ({
+        ...subtask,
+      }));
+
+      this.listing_subtasks = this.copy_store_subtasks.filter(
+        (subtask) => subtask.task_id === this.selected_task.id
+      );
     },
   },
   methods: {
@@ -100,11 +111,11 @@ export default {
   },
   created: function () {
     this.selected_task = { ...this.task };
-    this.store_subtasks = this.$store.state.all_subtasks;
-    // deep copy
-    this.copy_store_subtasks = this.store_subtasks.map((subtask) => ({
+
+    this.copy_store_subtasks = this.all_subtasks.map((subtask) => ({
       ...subtask,
     }));
+
     this.listing_subtasks = this.copy_store_subtasks.filter(
       (subtask) => subtask.task_id === this.selected_task.id
     );

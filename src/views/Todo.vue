@@ -276,28 +276,55 @@ export default {
       this.dialog = false;
     },
     onEditSave(all_task_info) {
-      console.log(all_task_info);
       const task_info = all_task_info.task_info;
-      const subtask_info = all_task_info.subtask_info;
-      console.log(task_info.id);
-      // task更新
+
+      // subtask_info => [{id:, task_id:, title, done}, ...]
+      const subtask_info = all_task_info.subtask_info; // array
+
+      const task_id = task_info.id;
+
+      try {
+        this.update_task(task_id, task_info);
+        this.update_subtasks(task_id, subtask_info);
+        this.snackbar_message = "Edited Tasks!";
+      } catch (err) {
+        console.log("err", err);
+        this.snackbar_message = "Internal server Error";
+      } finally {
+        this.show_snackbar = true;
+        this.Open_menu = "";
+        this.dialog = false;
+        this.selected_task = {};
+      }
+    },
+    update_task(task_id, task_info) {
       axios
-        .patch(process.env.FLASK_HOST + "/task/" + task_info.id, {
+        .patch(process.env.FLASK_HOST + "/task/" + task_id, {
           task_name: task_info.title,
         })
         .then((res) => {
-          const snackbar_message = res.data.message;
-          const task_info = res.data.task_info;
           // storeを更新すればshow_taskも更新される
-          this.$store.commit("update_task", task_info);
-          this.show_snackbar = true;
-          this.snackbar_message = snackbar_message;
+          const res_task_info = res.data.task_info;
+          this.$store.commit("update_task", res_task_info);
         })
         .catch((err) => {
           console.log("err", err);
+          throw new Error("update_task error");
         });
-      this.Open_menu = "";
-      this.dialog = false;
+    },
+    update_subtasks(task_id, subtask_info) {
+      axios
+        .patch(process.env.FLASK_HOST + "/task/" + task_id + "/subtasks/", {
+          subtask_info: subtask_info,
+        })
+        .then((res) => {
+          const res_subtask_info = res.data.subtask_info;
+          this.$store.commit("update_subtask", res_subtask_info);
+        })
+        .catch((err) => {
+          console.log("err", err);
+          throw new Error("update_subtask error");
+        });
     },
     onSelectLimit(date) {
       //TODO: taskのlimit_dateを保存する
