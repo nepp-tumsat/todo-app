@@ -33,7 +33,7 @@ class Task(db.Model):
   show = db.Column(db.Boolean, nullable=False, default=True, server_default="true")
   done = db.Column(db.Boolean, nullable=False, default=False, server_default="false")
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-  limit_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+  limit_at = db.Column(db.Date)
   sub_tasks = db.relationship('Subtask',backref=db.backref('task',lazy=True))
 
   def __repr__(self):
@@ -59,7 +59,7 @@ class Subtask(db.Model):
   show = db.Column(db.Boolean, nullable=False, default=True, server_default="true")
   done = db.Column(db.Boolean, nullable=False, default=False, server_default="false")
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-  limit_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+  limit_at = db.Column(db.Date)
 
   def __repr__(self):
     return f'<Subtask {self.id} {self.sub_task}>'
