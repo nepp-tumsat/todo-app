@@ -32,8 +32,9 @@ const store = new Vuex.Store({
               id: task.id,
               title: task.task,
               done: false,
-              limit_at:
-                task.limit_at !== task.created_at ? task.limit_at : undefined,
+              limit_at: task.limit_at
+                ? new Date(task.limit_at).toDateString()
+                : undefined,
             };
           });
           state.all_subtasks = res_subtasks.map(function (subtask) {
@@ -67,6 +68,12 @@ const store = new Vuex.Store({
         done: false,
       });
     },
+    delete_task(state, delete_task_info) {
+      const delete_task_id = delete_task_info.id;
+      state.all_tasks = state.all_tasks.filter(
+        (task) => task.id !== delete_task_id
+      );
+    },
     update_task(state, new_task_info) {
       // 一致するtask_idだけ入れ替える
       state.all_tasks = state.all_tasks.map((task) => {
@@ -75,10 +82,9 @@ const store = new Vuex.Store({
             id: new_task_info.id,
             title: new_task_info.title,
             done: new_task_info.done,
-            limit_at:
-              task.limit_at !== task.created_at
-                ? new_task_info.limit_at
-                : undefined,
+            limit_at: new_task_info.limit_at
+              ? new Date(new_task_info.limit_at).toDateString()
+              : undefined,
           };
         }
         return task;

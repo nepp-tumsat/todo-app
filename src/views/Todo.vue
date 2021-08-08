@@ -246,13 +246,13 @@ export default {
       task.done = !task.done;
     },
     onDelete() {
+      // TODO: storeだけ削除すればいい
       const task_id = this.selected_task.id;
       axios
         .patch(process.env.FLASK_HOST + "/task/" + task_id + "/delete")
         .then((res) => {
-          this.show_tasks = this.show_tasks.filter(
-            (task) => task.id !== this.selected_task.id
-          );
+          const task_info = res.data.task_info;
+          this.$store.commit("delete_task", task_info);
           this.show_snackbar = true;
           this.snackbar_message = res.data.message;
         })
