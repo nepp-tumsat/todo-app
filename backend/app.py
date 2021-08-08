@@ -215,7 +215,6 @@ def add_limit(task_id):
 
     res_obj = {
         'id': edit_task.id,
-        'user_id': edit_task.user_id,
         'created_at': edit_task.created_at,
         'limit_at': edit_task.limit_at,
         'task': edit_task.task,
@@ -342,6 +341,7 @@ def create_subtask(task_id):
     db.session.close()
     return jsonify(response), status_code
 
+# task_idは使ってないから/subtasks/だけでもいいかも？
 @app.route('/task/<int:task_id>/subtasks/', methods=['PATCH'])
 def update_edited_subtasks(task_id):
   request_dict = request.get_json()

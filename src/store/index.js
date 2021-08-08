@@ -26,12 +26,14 @@ const store = new Vuex.Store({
         .then((res) => {
           const res_tasks = res.data.tasks;
           const res_subtasks = res.data.subtasks;
-
+          // create_atとlimit_atの時間が違かったら追加, それ以外は削除
           state.all_tasks = res_tasks.map(function (task) {
             return {
               id: task.id,
               title: task.task,
               done: false,
+              limit_at:
+                task.limit_at !== task.created_at ? task.limit_at : undefined,
             };
           });
           state.all_subtasks = res_subtasks.map(function (subtask) {
@@ -73,6 +75,8 @@ const store = new Vuex.Store({
             id: task_info.id,
             title: task_info.title,
             done: task_info.done,
+            limit_at:
+              task.limit_at !== task.created_at ? task.limit_at : undefined,
           };
         }
         return task;
