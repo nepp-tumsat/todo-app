@@ -365,6 +365,8 @@ export default {
       this.show_snackbar = true;
     },
   },
-  // ブラウザ更新した場合は必要
+  created() {
+    this.show_tasks = [...this.$store.state.all_tasks];
+  },
 };
 </script>
