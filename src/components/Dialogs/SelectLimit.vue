@@ -9,16 +9,24 @@
 <script>
 export default {
   name: "SelectLimit",
+  props: {
+    task: {
+      type: Object,
+      require: true,
+    },
+  },
   data() {
     return {
       date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
         .toISOString()
         .substr(0, 10),
+      selected_task: this.task,
     };
   },
   methods: {
     select_limit() {
-      this.$emit("select_limit", this.date);
+      this.selected_task.limit_at = this.date;
+      this.$emit("select_limit", this.selected_task);
     },
   },
 };

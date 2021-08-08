@@ -35,6 +35,16 @@
                   {{ task.title }}
                 </v-list-item-title>
               </v-list-item-content>
+              <v-spacer></v-spacer>
+              <v-list-item-icon v-if="task.limit_at">
+                <v-icon left color="grey darken-1">mdi-calendar-month</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ task.limit_at }}
+                </v-list-item-title>
+              </v-list-item-content>
+
               <v-list-item-action>
                 <v-menu offset-y>
                   <template v-slot:activator="{ on }">
@@ -149,13 +159,13 @@ export default {
       ],
       Open_menu: "",
       selected_task: {},
-      user_id: 1,
       dragging: false,
-      limit_date: "",
       snackbar_message: "",
     };
   },
   computed: {
+    // TODO: task_idがあると楽かも
+
     Isdraggable: function () {
       return this.Open_menu === "Sort" ? true : false;
     },
@@ -288,7 +298,6 @@ export default {
         this.update_subtasks(task_id, subtask_info);
         this.snackbar_message = "Edited Tasks!";
       } catch (err) {
-        console.log("err", err);
         this.snackbar_message = "Internal server Error";
       } finally {
         this.show_snackbar = true;
@@ -326,14 +335,30 @@ export default {
           throw new Error("update_subtask error");
         });
     },
-    onSelectLimit(date) {
-      //TODO: taskのlimit_dateを保存する
-      // type of date is String
-      this.limit_date = date;
+    onSelectLimit(task_info) {
+      const limit_date = task_info.limit_at;
+      const task_id = this.selected_task.id;
+
+      axios
+        .patch(process.env.FLASK_HOST + "/task/" + task_id + "/limit", {
+          limit_at: limit_date,
+        })
+        .then((res) => {
+          const res_task_info = res.data.task_info;
+          this.$store.commit("update_task", res_task_info);
+          this.snackbar_message = "Selected Due Date!";
+        })
+        .catch((err) => {
+          if (!err.response) {
+            this.snackbar_message = "ネットワークエラーです";
+            return;
+          } else {
+            this.snackbar_message = err.response.data.message;
+          }
+        });
       this.Open_menu = "";
       this.dialog = false;
       this.show_snackbar = true;
-      this.snackbar_message = "Selected Due Date!";
     },
   },
   // ブラウザ更新した場合は必要
