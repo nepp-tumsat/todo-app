@@ -62,7 +62,14 @@
                   <v-list>
                     <div v-for="menu in menus" :key="menu.title">
                       <v-list-item @click="selectDialog(menu, task)">
-                        <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                        <v-list-item-title>
+                          {{ menu.title }}
+                        </v-list-item-title>
+                        <v-list-item-icon v-if="task.limit_at">
+                          <v-icon right color="grey darken-1">{{
+                            menu.icon
+                          }}</v-icon>
+                        </v-list-item-icon>
                       </v-list-item>
                     </div>
                   </v-list>
@@ -151,11 +158,11 @@ export default {
       sub_tasks: {},
       show_snackbar: false,
       menus: [
-        { title: "Edit" },
-        { title: "Add Subtask" },
-        { title: "Select Limit" },
-        { title: "Delete" },
-        { title: "Sort" },
+        { title: "Edit", icon: "mdi-pencil" },
+        { title: "Add Subtask", icon: "mdi-playlist-plus" },
+        { title: "Select Limit", icon: "mdi-calendar-edit" },
+        { title: "Delete", icon: "mdi-delete" },
+        { title: "Sort", icon: "mdi-sort" },
       ],
       Open_menu: "",
       selected_task: {},
