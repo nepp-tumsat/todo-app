@@ -62,7 +62,18 @@ export default {
           this.$router.push("/");
         })
         .catch((err) => {
-          this.error_message = "ユーザー名かパスワードが違います";
+          if (!err.response) {
+            // network error
+            this.error_message = "ネットワークエラーです";
+            return;
+          } else {
+            const err_message = err.response.data.message;
+            if (err_message === "Unauthorized") {
+              this.error_message = "ユーザー名かパスワードが違います";
+            } else {
+              this.error_message = "Internal Server Error";
+            }
+          }
         });
     },
     register() {
