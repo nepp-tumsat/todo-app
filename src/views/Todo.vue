@@ -322,6 +322,10 @@ export default {
         });
     },
     update_subtasks(task_id, subtask_info) {
+      if (subtask_info.length === 0) {
+        return;
+      }
+
       axios
         .patch(process.env.FLASK_HOST + "/task/" + task_id + "/subtasks/", {
           subtask_info: subtask_info,
@@ -361,6 +365,8 @@ export default {
       this.show_snackbar = true;
     },
   },
-  // ブラウザ更新した場合は必要
+  created() {
+    this.show_tasks = [...this.$store.state.all_tasks];
+  },
 };
 </script>
