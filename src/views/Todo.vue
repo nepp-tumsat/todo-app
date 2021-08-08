@@ -322,6 +322,10 @@ export default {
         });
     },
     update_subtasks(task_id, subtask_info) {
+      if (subtask_info.length === 0) {
+        return;
+      }
+
       axios
         .patch(process.env.FLASK_HOST + "/task/" + task_id + "/subtasks/", {
           subtask_info: subtask_info,
