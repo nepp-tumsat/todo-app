@@ -212,11 +212,11 @@ def add_limit(task_id):
   }
 
   request_dict = request.get_json()
-  str_datetime = request_dict['limit_at'].replace('-', '')
+  limit_datetime = request_dict['limit_at']
 
   try:
     edit_task=Task.query.get(task_id)
-    edit_task.limit_at = datetime.strptime(str_datetime, '%Y%m%d')
+    edit_task.limit_at = limit_datetime
     db.session.commit()
 
   except Exception as err:

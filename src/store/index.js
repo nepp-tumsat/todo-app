@@ -32,8 +32,7 @@ const store = new Vuex.Store({
               id: task.id,
               title: task.task,
               done: false,
-              limit_at:
-                task.limit_at !== task.created_at ? task.limit_at : undefined,
+              limit_at: task.limit_at ? task.limit_at : undefined,
             };
           });
           state.all_subtasks = res_subtasks.map(function (subtask) {
@@ -75,10 +74,9 @@ const store = new Vuex.Store({
             id: new_task_info.id,
             title: new_task_info.title,
             done: new_task_info.done,
-            limit_at:
-              task.limit_at !== task.created_at
-                ? new_task_info.limit_at
-                : undefined,
+            limit_at: new_task_info.limit_at
+              ? new_task_info.limit_at
+              : undefined,
           };
         }
         return task;
