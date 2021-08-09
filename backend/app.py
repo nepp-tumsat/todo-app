@@ -124,12 +124,29 @@ def create_user():
 
     return jsonify(response_dict)
 
+# UserテーブルのStatusを変更とかの方がいいかも
 @app.route('/user/<int:user_id>',methods=['DELETE'])
 def delete_user(user_id):
+  status_code = 200
+  response = {
+    'message': ''
+    }
+
+  try:
     db.session.query(User).filter(User.id==user_id).delete()
     db.session.commit()
-    response_object = {'message': 'Successfully Delete User'}
-    return jsonify(response_object)
+
+  except Exception as err:
+    db.session.rollback()
+    status_code = 500
+    response['message'] = 'db error'
+
+  else:
+    response['message'] = 'Successfully Delete User'
+
+  finally:
+    db.session.close()
+    return jsonify(response), status_code
 
 
 ########

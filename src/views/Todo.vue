@@ -370,6 +370,7 @@ export default {
       this.show_snackbar = true;
     },
     SortEnd() {
+      // API接続はbeforeDestroyで設定してもいいかも
       this.Open_menu = false;
       this.show_tasks = this.show_tasks.map((task, index) => {
         return {
