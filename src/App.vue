@@ -9,9 +9,14 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h5">
-            {{ display_username }}
+            {{ user_name }}
           </v-list-item-title>
         </v-list-item-content>
+        <v-list-item-icon>
+          <v-icon id="delete" right color="grey darken-1" @click="onOpen"
+            >mdi-account-minus</v-icon
+          >
+        </v-list-item-icon>
       </v-list-item>
 
       <v-divider></v-divider>
@@ -56,14 +61,16 @@
         outlined
       >
       </v-text-field>
-      <v-btn v-if="$store.state.loggedIn" @click="dialog = true" icon>
-        <v-icon>mdi-logout</v-icon>
-      </v-btn>
+        <v-btn id="logout" v-if="$store.state.loggedIn" @click="onOpen" icon>
+          <v-icon>mdi-logout</v-icon>
+        </v-btn>
+      </div>
     </v-app-bar>
 
     <v-main>
       <v-dialog v-model="dialog" width="unset">
-        <logout @logout="onLogout" @close="onClose" />
+        <logout v-show="targetId === 'logout'" @logout="onLogout" @close="onClose" />
+        <delete v-show="targetId === 'delete'" @logout="onDelete" @close="onClose" />
       </v-dialog>
       <router-view></router-view>
     </v-main>
@@ -72,31 +79,56 @@
 
 <script>
 import Logout from "./components/Dialogs/Logout.vue";
+import Delete from "./components/Dialogs/Delete.vue";
 
 export default {
+  components: {
+    Logout,
+    Delete
+  },
   data: () => ({
     drawer: false, // navigate barの有無を決める
     items: [
       { title: "Todo", icon: "mdi-format-list-checks", to: "/" },
       { title: "About", icon: "mdi-help-box", to: "/about" },
     ],
-    display_username: "",
     searching: false,
     search_word: "",
     dialog: false,
+    targetId: ''
   }),
   components: {
     Logout,
   },
   methods: {
+    onOpen(event) {
+      this.targetId = event.currentTarget.id;
+      this.dialog = true;
+    },
+    onClose() {
+      this.dialog = false;
+      this.targetId = ''
+    },
     onLogout() {
       this.dialog = false;
+      this.targetId = ''
       this.$store.commit("logout");
       // TODO: validationできたらtokenの有無で遷移させる
       this.$router.push("/login");
     },
-    onClose() {
-      this.dialog = false;
+    onDelete() {
+      const user_id = this.$store.state.user_id
+      // TODO: APIができるまで放置
+      // axios
+      //   .delete(process.env.FLASK_HOST + '/user/' + user_id)
+      //   .then((res)=> {
+      //     this.onLogout()
+      //   })
+      //   .catch((err) => {
+      //     console.log('err', err)
+      //     this.dialog = false;
+      //     this.targetId = ''
+      //   });
     },
     onClickOutsideStandard() {
       // v-click-outsideに式を渡しても代入されなかった
@@ -113,9 +145,6 @@ export default {
     },
   },
   watch: {
-    user_name(get_username) {
-      this.display_username = get_username;
-    },
     search_word(new_word) {
       this.$store.commit("search", new_word);
     },
