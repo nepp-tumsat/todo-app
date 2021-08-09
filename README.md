@@ -1,8 +1,8 @@
-# About This Application
-
 <div align="center">
 <img src="https://jp.vuejs.org/images/logo.svg" width=100 height=140> <img src="https://flask.palletsprojects.com/en/2.0.x/_images/flask-logo.png" width=200 height=120>
 </div>
+
+# About This Application
 
 このアプリケーションは SPA で構成された TODO アプリです。  
 フロントエンドに Vue.js,バックエンドに Flask を使用しています。
