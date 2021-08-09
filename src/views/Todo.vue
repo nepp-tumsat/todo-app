@@ -115,7 +115,7 @@
         bottom
         color="success"
         :style="{ left: '50%', transform: 'translateX(-50%)' }"
-        @click="Open_menu = false"
+        @click="SortEnd"
       >
         Stop Sorting
       </v-btn>
@@ -155,7 +155,6 @@ export default {
       dialog: false,
       newTaskTitle: "",
       show_tasks: [],
-      sub_tasks: {},
       show_snackbar: false,
       menus: [
         { title: "Edit", icon: "mdi-pencil" },
@@ -166,7 +165,6 @@ export default {
       ],
       Open_menu: "",
       selected_task: {},
-      dragging: false,
       snackbar_message: "",
     };
   },
@@ -370,6 +368,18 @@ export default {
       this.Open_menu = "";
       this.dialog = false;
       this.show_snackbar = true;
+    },
+    SortEnd() {
+      this.Open_menu = false;
+      this.show_tasks = this.show_tasks.map((task, index) => {
+        return {
+          id: task.id,
+          title: task.title,
+          done: false,
+          limit_at: task.limit_at,
+          sort_position: index + 1,
+        };
+      });
     },
   },
   created() {
