@@ -62,7 +62,14 @@
                   <v-list>
                     <div v-for="menu in menus" :key="menu.title">
                       <v-list-item @click="selectDialog(menu, task)">
-                        <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                        <v-list-item-title>
+                          {{ menu.title }}
+                        </v-list-item-title>
+                        <v-list-item-icon v-if="task.limit_at">
+                          <v-icon right color="grey darken-1">{{
+                            menu.icon
+                          }}</v-icon>
+                        </v-list-item-icon>
                       </v-list-item>
                     </div>
                   </v-list>
@@ -108,7 +115,7 @@
         bottom
         color="success"
         :style="{ left: '50%', transform: 'translateX(-50%)' }"
-        @click="Open_menu = false"
+        @click="SortEnd"
       >
         Stop Sorting
       </v-btn>
@@ -148,18 +155,16 @@ export default {
       dialog: false,
       newTaskTitle: "",
       show_tasks: [],
-      sub_tasks: {},
       show_snackbar: false,
       menus: [
-        { title: "Edit" },
-        { title: "Add Subtask" },
-        { title: "Select Limit" },
-        { title: "Delete" },
-        { title: "Sort" },
+        { title: "Edit", icon: "mdi-pencil" },
+        { title: "Add Subtask", icon: "mdi-playlist-plus" },
+        { title: "Select Limit", icon: "mdi-calendar-edit" },
+        { title: "Delete", icon: "mdi-delete" },
+        { title: "Sort", icon: "mdi-sort" },
       ],
       Open_menu: "",
       selected_task: {},
-      dragging: false,
       snackbar_message: "",
     };
   },
@@ -363,6 +368,18 @@ export default {
       this.Open_menu = "";
       this.dialog = false;
       this.show_snackbar = true;
+    },
+    SortEnd() {
+      this.Open_menu = false;
+      this.show_tasks = this.show_tasks.map((task, index) => {
+        return {
+          id: task.id,
+          title: task.title,
+          done: false,
+          limit_at: task.limit_at,
+          sort_position: index + 1,
+        };
+      });
     },
   },
   created() {
