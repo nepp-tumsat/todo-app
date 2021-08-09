@@ -1,3 +1,5 @@
+# About This Application
+
 # Setup
 
 ```
@@ -12,6 +14,13 @@ todo-front
 
 // flaskコンテナ
 todo-back
+```
+
+# Database setup
+
+```
+# backendコンテナを立ち上げた状態で以下のコマンドを実行
+init_migration
 ```
 
 # flask で DB 作成
