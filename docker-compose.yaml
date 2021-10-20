@@ -32,6 +32,7 @@ services:
     ports:
       - "80:80"
     environment:
+      MIGRATE: "true"
       TZ: "Asia/Tokyo"
       FLASK_APP: run.py
       FLASK_ENV: "development"
