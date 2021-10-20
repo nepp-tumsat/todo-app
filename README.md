@@ -23,22 +23,14 @@ todo-front
 todo-back
 ```
 
-# Database setup
-
-```
-# backendコンテナを立ち上げた状態で以下のコマンドを実行
-init_migration
-```
-
-# flask で DB 作成
+# flask Migration
 
 ```
 # コンテナの中に入る
 $ docker exec -it todo_back bash
 
-> flask db init # migrationディレクトリ作成
-> flask db migrate -m "マイグレーションのコメント" # マイグレーションの実施
-> flask db upgrade # マイグレーション実行
+> flask db migrate -m "マイグレーションのコメント"
+# 再起動
 ```
 
 # DB アクセス
