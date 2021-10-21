@@ -12,6 +12,6 @@
 
 <script>
 export default {
-  name: "Logout",
+  name: "Delete",
 };
 </script>
