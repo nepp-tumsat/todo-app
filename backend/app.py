@@ -159,7 +159,7 @@ def list_todo():
                         'user_id':task.user_id,
                         "created_at":task.created_at,
                         "limit_at":task.limit_at,
-                        'task':task.task,
+                        'title':task.title,
                         }
         response_object.append(response_dict)
     return jsonify(response_object)
@@ -169,7 +169,7 @@ def create_todo():
     new_task = Task()
     # requestの辞書を取得
     request_dict = request.get_json()
-    new_task.task = request_dict['task_name']
+    new_task.title = request_dict['title']
     new_task.user_id = request_dict['user_id']
     db.session.add(new_task)
     db.session.commit()# ここでidが確定する
@@ -179,7 +179,7 @@ def create_todo():
         'user_id': new_task.user_id,
         'created_at': new_task.created_at,
         'limit_at': new_task.limit_at,
-        'task': new_task.task,
+        'title': new_task.title,
         # 'sub_tasks': new_task.sub_tasks
     }
     return jsonify(res_obj)
@@ -195,7 +195,7 @@ def update_edited_todo(task_id):
   try:
     request_dict = request.get_json()
     edit_task = db.session.query(Task).filter(Task.id == task_id).first()
-    edit_task.task = request_dict['task_name']
+    edit_task.title = request_dict['title']
     db.session.commit()
 
   except Exception as err:
@@ -209,7 +209,7 @@ def update_edited_todo(task_id):
       'id': edit_task.id,
       'created_at': edit_task.created_at,
       'limit_at': edit_task.limit_at,
-      'title': edit_task.task,
+      'title': edit_task.title,
       'done': edit_task.done
     }
     res_obj['task_info'] = task_info
@@ -243,7 +243,7 @@ def add_limit(task_id):
         'id': edit_task.id,
         'created_at': edit_task.created_at,
         'limit_at': edit_task.limit_at,
-        'title': edit_task.task,
+        'title': edit_task.title,
     }
     response['message'] = 'success'
     status_code = 200
@@ -285,13 +285,13 @@ def completed_task(task_id):
     db.session.commit()
 
     res_obj = {
-        'id': delete_task.id,
-        'user_id': delete_task.user_id,
-        'created_at': delete_task.created_at,
-        'limit_at': delete_task.limit_at,
-        'task': delete_task.task,
+        'id': completed_task.id,
+        'user_id': completed_task.user_id,
+        'created_at': completed_task.created_at,
+        'limit_at': completed_task.limit_at,
+        'title': completed_task.title,
         'done': completed_task.done,
-        'show': delete_task.show
+        'show': completed_task.show
     }
     return jsonify(res_obj)
 
@@ -307,7 +307,7 @@ def delete_todo(task_id):
                         'user_id':task.user_id,
                         "created_at":task.created_at,
                         "limit_at":task.limit_at,
-                        'task':task.task
+                        'title':task.title
                         }
         response_object.append(response_dict)
     return jsonify(response_object)
@@ -326,7 +326,7 @@ def subtask(task_id):
                         'user_id':subtask.user_id,
                         'task_id':subtask.task_id,
                         "created_at":subtask.created_at,"limit_at":subtask.limit_at,
-                        "sub_task":subtask.sub_task
+                        "title":subtask.title
                         }
         response_object.append(response_dict)
     return jsonify(response_object)
@@ -339,7 +339,7 @@ def create_subtask(task_id):
   new_subtasks_list = [Subtask(
                     user_id = user_id,
                     task_id = subtask['task_id'],
-                    sub_task = subtask['title']
+                    title = subtask['title']
                   ) for subtask in sub_task_list]
 
   # 複数追加
@@ -363,7 +363,7 @@ def create_subtask(task_id):
     send_subtasks_list = [{
         'id' : subtask.id,
         'task_id' : subtask.task_id,
-        'title' : subtask.sub_task,
+        'title' : subtask.title,
         'done' : subtask.done
       } for subtask in new_subtasks_list]
 
@@ -426,7 +426,7 @@ def delete_subtask(task_id,subtask_id):
                         'user_id':subtask.user_id,
                         'task_id':subtask.task_id,
                         "created_at":subtask.created_at,"limit_at":subtask.limit_at,
-                        "sub_task":subtask.sub_task
+                        "title":subtask.title
                         }
         response_object.append(response_dict)
     return jsonify(response_object)

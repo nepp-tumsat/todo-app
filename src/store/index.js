@@ -30,7 +30,7 @@ const store = new Vuex.Store({
           state.all_tasks = res_tasks.map(function (task) {
             return {
               id: task.id,
-              title: task.task,
+              title: task.title,
               done: false,
               limit_at: task.limit_at
                 ? new Date(task.limit_at).toDateString()
@@ -42,7 +42,7 @@ const store = new Vuex.Store({
             return {
               id: subtask.id,
               task_id: subtask.task_id,
-              title: subtask.sub_task,
+              title: subtask.title,
               done: false,
             };
           });

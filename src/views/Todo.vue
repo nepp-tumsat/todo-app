@@ -224,13 +224,13 @@ export default {
         axios
           .post(process.env.FLASK_HOST + "/task", {
             user_id: this.$store.state.user_id,
-            task_name: this.newTaskTitle,
+            title: this.newTaskTitle,
           })
           .then((res) => {
             const task_info = res.data;
             const new_task = {
               id: task_info.id,
-              title: task_info.task,
+              title: task_info.title,
               done: false,
             };
 
@@ -314,7 +314,7 @@ export default {
     update_task(task_id, task_info) {
       axios
         .patch(process.env.FLASK_HOST + "/task/" + task_id, {
-          task_name: task_info.title,
+          title: task_info.title,
         })
         .then((res) => {
           // storeを更新すればshow_taskも更新される
