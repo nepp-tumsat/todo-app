@@ -38,25 +38,18 @@ def login():
   # SQLのANDはカンマ区切り
   # .all()を付けないとクエリが取得される
   # 参考: https://www.sukerou.com/2019/04/sqlalchemyandor.html
-  user = db.session.query(User).filter(User.username==username).all()
-
+  user = User.query.filter_by(username=username).first()
   user_info = {}
-  if len(user) == 1:
-    if check_password_hash(user.password, password):
-      status_code = 200
-      message = 'Login Success'
-      user_info = {
-        'user_id': user[0].id,
-        'user_name': user[0].username
-      }
-    else: #パスワードが異なる場合
-      status_code = 401
-      message = 'Unauthorized'
-  else:
-    # ヒットするユーザーが 0 or 2以上の場合
+  if check_password_hash(user.password, password):
+    status_code = 200
+    message = 'Login Success'
+    user_info = {
+      'user_id': user.id,
+      'user_name': user.username
+    }
+  else: #パスワードが異なる場合
     status_code = 401
-    message = 'Unauthorized' if len(user) == 0 else 'Internal Server error'
-
+    message = 'Unauthorized'
   response_object = {
     'message': message,
     'user_info': user_info
