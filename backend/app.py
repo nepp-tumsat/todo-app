@@ -51,7 +51,7 @@ def login():
       }
     else: #パスワードが異なる場合
       status_code = 401
-      message = 'Unauthorized' if len(user) == 0 else 'Internal Server error'
+      message = 'Unauthorized'
   else:
     # ヒットするユーザーが 0 or 2以上の場合
     status_code = 401
