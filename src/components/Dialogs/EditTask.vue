@@ -58,40 +58,27 @@ export default {
       valid: true,
       show_alert: false,
       all_task_Rules: [(value) => !!value || "入力必須です"],
-      listing_subtasks: [],
-      selected_task: {},
     };
   },
   computed: {
-    all_subtasks: function () {
-      return this.$store.getters.get_all_subtasks;
-    },
-    CanShowList: function () {
-      return this.listing_subtasks.length > 0 ? true : false;
-    },
-  },
-  watch: {
-    // プロパティ監視
-    task(new_task) {
-      this.selected_task = { ...new_task };
-
-      // deep copy
-      this.copy_store_subtasks = this.all_subtasks.map((subtask) => ({
-        ...subtask,
-      }));
-
-      this.listing_subtasks = this.copy_store_subtasks.filter(
-        (subtask) => subtask.task_id === this.selected_task.id
-      );
+    selected_task() {
+      return { ...this.task };
     },
     all_subtasks() {
-      this.copy_store_subtasks = this.all_subtasks.map((subtask) => ({
-        ...subtask,
-      }));
-
-      this.listing_subtasks = this.copy_store_subtasks.filter(
+      return this.$store.getters.get_all_subtasks;
+    },
+    listing_subtasks() {
+      return this.copy_store_subtasks.filter(
         (subtask) => subtask.task_id === this.selected_task.id
       );
+    },
+    CanShowList() {
+      return this.listing_subtasks.length > 0 ? true : false;
+    },
+    copy_store_subtasks() {
+      return this.all_subtasks.map((subtask) => ({
+        ...subtask,
+      }));
     },
   },
   methods: {
@@ -108,17 +95,6 @@ export default {
       console.log(send_all_task_info);
       this.$emit("save", send_all_task_info);
     },
-  },
-  created: function () {
-    this.selected_task = { ...this.task };
-
-    this.copy_store_subtasks = this.all_subtasks.map((subtask) => ({
-      ...subtask,
-    }));
-
-    this.listing_subtasks = this.copy_store_subtasks.filter(
-      (subtask) => subtask.task_id === this.selected_task.id
-    );
   },
 };
 </script>
