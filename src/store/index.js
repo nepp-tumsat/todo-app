@@ -65,7 +65,7 @@ const store = new Vuex.Store({
       state.all_subtasks.push({
         id: subtask.id,
         task_id: subtask.task_id,
-        title: subtask.sub_task,
+        title: subtask.title,
         done: false,
       });
     },
