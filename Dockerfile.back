@@ -7,10 +7,10 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install -U pip && \
     pip install -r requirements.txt
 
-# COPY ./scripts/backend/docker.start.sh /scripts/start.sh
+COPY ./scripts/backend/docker.start.sh /scripts/start.sh
 
-# RUN chmod +x /scripts/*
+RUN chmod +x /scripts/*
 
-# ENTRYPOINT [ "/scripts/start.sh" ]
+ENTRYPOINT [ "/scripts/start.sh" ]
 
-ENTRYPOINT [ "python", "run.py" ]
+#ENTRYPOINT [ "python", "run.py" ]
