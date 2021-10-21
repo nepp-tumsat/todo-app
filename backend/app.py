@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
 from sqlalchemy.sql import case
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend.database import init_db,db
 from backend.models import User, Task, Subtask
@@ -34,20 +35,23 @@ def login():
   request_dict = request.get_json()
   username = request_dict['user_name']
   password = request_dict['password']
-
   # SQLのANDはカンマ区切り
   # .all()を付けないとクエリが取得される
   # 参考: https://www.sukerou.com/2019/04/sqlalchemyandor.html
-  user = db.session.query(User).filter(User.username==username, User.password==password).all()
+  user = db.session.query(User).filter(User.username==username).all()
 
   user_info = {}
   if len(user) == 1:
-    status_code = 200
-    message = 'Login Success'
-    user_info = {
-      'user_id': user[0].id,
-      'user_name': user[0].username
-    }
+    if check_password_hash(user.password, password):
+      status_code = 200
+      message = 'Login Success'
+      user_info = {
+        'user_id': user[0].id,
+        'user_name': user[0].username
+      }
+    else: #パスワードが異なる場合
+      status_code = 401
+      message = 'Unauthorized'
   else:
     # ヒットするユーザーが 0 or 2以上の場合
     status_code = 401
@@ -110,7 +114,7 @@ def create_user():
     new_user = User()
     request_dict = request.get_json()
     new_user.username = request_dict['user_name']
-    new_user.password = request_dict['password']
+    new_user.password = generate_password_hash(request_dict['password'], method='sha256')
     new_user.email = request_dict['email']
 
     # DBへ追加
