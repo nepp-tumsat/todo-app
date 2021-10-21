@@ -11,7 +11,7 @@ class DevelopmentConfig:
         'driver': 'pymysql',
         'user': os.getenv('DB_USER', 'root'),
         'password': os.getenv('DB_PASSWORD', 'password'),
-        'host': os.getenv('DB_HOST', '172.30.0.4'),
+        'host': os.getenv('DB_HOST', 'host.docker.internal'),
         'database': os.getenv('DB_DATABASE', 'todo_app'),
         'charset_type': 'utf8'
 
