@@ -103,23 +103,38 @@ def user_tasks(user_id):
 
 
 @app.route('/user', methods=['POST'])
-def create_user():
+def register_user():
     new_user = User()
     request_dict = request.get_json()
     new_user.username = request_dict['user_name']
     new_user.password = generate_password_hash(request_dict['password'], method='sha256')
     new_user.email = request_dict['email']
 
-    # DBへ追加
-    db.session.add(new_user)
-    db.session.commit()
+    status_code = 200
+    response = {
+      'message': ''
+    }
 
-    response_dict = {'user_id': new_user.id,
-                    'username':new_user.username,
-                    'email':new_user.email}
+    try:
+      db.session.add(new_user)
+      db.session.commit()
 
+    except Exception as err:
+      db.session.rollback()
+      status_code = 500
+      response['message'] = 'サーバーエラーです。'
 
-    return jsonify(response_dict)
+    else:
+      response['message'] = 'Successfully Register user'
+      response['user_info'] = {
+        'id': new_user.id,
+        'name':new_user.username,
+        'email': new_user.email
+        }
+
+    finally:
+      db.session.close()
+      return jsonify(response), status_code
 
 # UserテーブルのStatusを変更とかの方がいいかも
 @app.route('/user/<int:user_id>',methods=['DELETE'])
