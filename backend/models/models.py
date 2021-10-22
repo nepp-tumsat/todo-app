@@ -9,7 +9,7 @@ class User(db.Model):
   password = db.Column(db.String(255), nullable=False)
   email = db.Column(db.String(255), nullable=False, unique=True)
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-  delete_flg = db.Column(db.Boolean, nullable=False, default=True, server_default="true")
+  delete_flg = db.Column(db.Boolean, nullable=False, default=True)
   tasks = db.relationship('Task',backref=db.backref('user',lazy=True))
   sub_tasks = db.relationship('Subtask',backref=db.backref('user',lazy=True))
 
