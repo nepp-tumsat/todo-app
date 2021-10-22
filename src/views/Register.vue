@@ -8,20 +8,47 @@
       >
         <v-card-title>ユーザー新規登録</v-card-title>
         <v-form ref="form">
-          <v-text-field v-model="name" label="Name"></v-text-field>
-          <v-text-field v-model="password" label="password"></v-text-field>
-          <v-text-field v-model="email" label="email"></v-text-field>
+          <v-text-field
+            v-model="name"
+            label="Name"
+            :rules="[required]"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="password"
+            label="password"
+            v-bind:type="showPassword ? 'text' : 'password'"
+            v-bind:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append="showPassword = !showPassword"
+            :rules="[required]"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="email"
+            label="email"
+            :rules="[required, email_rule]"
+          ></v-text-field>
 
           <v-alert text type="error" v-show="error_message">
             <div>{{ error_message }}</div>
           </v-alert>
 
-          <v-btn tile @click="register">
+          <v-btn tile @click="register" color="primary">
             <v-icon left> mdi-account-plus </v-icon>
             register
           </v-btn>
+
           <v-btn tile @click="clear"> clear </v-btn>
-          <v-btn tile :to="'/login'" class="mr-4" absolute bottom right>
+
+          <v-btn
+            tile
+            :to="'/login'"
+            class="mr-4"
+            color="success"
+            absolute
+            bottom
+            right
+          >
             <v-icon left> mdi-keyboard-return </v-icon>
             back
           </v-btn>
@@ -40,14 +67,16 @@ export default {
       name: "",
       password: "",
       email: "",
+      email_rule: (v) => /.+@.+\..+/.test(v) || "正しいEmailを入力してください",
+      required: (v) => !!v || "必ず入力してください",
+      valid: true,
+      showPassword: false,
       error_message: "",
     };
   },
   methods: {
     register() {
-      // TODO: API 接続
-      if (this.name === "" || this.password === "") {
-        this.error_message = "名前とパスワードを入力してください";
+      if (!this.$refs.form.validate()) {
         return;
       }
       axios
@@ -57,8 +86,9 @@ export default {
           email: this.email,
         })
         .then((res) => {
-          const user_id = res.data.user_id;
-          const user_name = res.data.username;
+          const user_info = res.data.user_info;
+          const user_id = user_info.id;
+          const user_name = user_info.name;
           this.$store.commit("login", {
             user_id: user_id,
             user_name: user_name,
@@ -66,7 +96,11 @@ export default {
           this.$router.push("/");
         })
         .catch((err) => {
-          console.log("err", err);
+          if (!err.response) {
+            this.error_message = "ネットワークエラーです";
+            return;
+          }
+          this.error_message = err.response.data.message;
         });
     },
     clear() {
