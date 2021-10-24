@@ -17,22 +17,9 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>Todo App</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-btn
-        v-if="!searching && $store.state.loggedIn"
-        @click="searching = true"
-        icon
-      >
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-text-field
-        v-if="searching"
-        v-model="search_word"
-        v-click-outside="onClickOutsideStandard"
-        prepend-inner-icon="mdi-magnify"
-        autofocus
-        outlined
-      >
-      </v-text-field>
+
+      <SearchField />
+
         <v-btn id="logout" v-if="$store.state.loggedIn" @click="onOpen" icon>
           <v-icon>mdi-logout</v-icon>
         </v-btn>
@@ -41,8 +28,15 @@
 
     <v-main>
       <v-dialog v-model="dialog" width="unset">
-        <logout v-show="targetId === 'logout'" @logout="onLogout" @close="onClose" />
-        <delete v-show="targetId === 'delete'" @logout="onDelete" @close="onClose" />
+        <logout v-show="targetId === 'logout'"
+          @logout="onLogout"
+          @close="onClose" />
+
+        <delete
+          v-show="targetId === 'delete'"
+          @logout="onDelete"
+          @close="onClose" />
+
       </v-dialog>
       <router-view></router-view>
     </v-main>
@@ -55,7 +49,8 @@ export default {
   components: {
     Logout: () => import("./components/Dialogs/Logout.vue"),
     Delete: () => import("./components/Dialogs/Delete.vue"),
-    NavBar: () => import("./components/NavBar.vue")
+    NavBar: () => import("./components/NavBar.vue"),
+    SearchField: () => import("./components/SearchField.vue")
   },
   data: () => ({
     drawer: false, // navigate barの有無を決める
@@ -63,8 +58,8 @@ export default {
       { title: "Todo", icon: "mdi-format-list-checks", to: "/" },
       { title: "About", icon: "mdi-help-box", to: "/about" },
     ],
-    searching: false,
-    search_word: "",
+    // searching: false,
+    // search_word: "",
     dialog: false,
     targetId: ''
   }),
@@ -98,19 +93,19 @@ export default {
       //     this.targetId = ''
       //   });
     },
-    onClickOutsideStandard() {
-      // v-click-outsideに式を渡しても代入されなかった
-      this.searching = false;
+    // onClickOutsideStandard() {
+    //   // v-click-outsideに式を渡しても代入されなかった
+    //   this.searching = false;
 
-      // wordの初期化
-      this.search_word = "";
-      this.$store.commit("search", "");
-    },
+    //   // wordの初期化
+    //   this.search_word = "";
+    //   this.$store.commit("search", "");
+    // },
   },
-  watch: {
-    search_word(new_word) {
-      this.$store.commit("search", new_word);
-    },
-  },
+  // watch: {
+  //   search_word(new_word) {
+  //     this.$store.commit("search", new_word);
+  //   },
+  // },
 };
 </script>
