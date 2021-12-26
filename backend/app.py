@@ -101,6 +101,56 @@ def user_tasks(user_id):
                     'subtasks': res_subtasks
                     })
 
+@app.route('/user/<int:user_id>/asc', methods=['GET'])
+#ユーザーごとのタスクをidに基づき昇順で表示
+def user_asc(user_id):
+
+    db_task_ids = db.session.query(Task.id).filter(Task.user_id == user_id, Task.show==True).all()
+    task_ids = [task_obj.id for task_obj in db_task_ids]
+    # task取得
+    user_tasks = db.session.query(Task).filter(Task.user_id == user_id, Task.show==True).order_by(Task.id.asc()).all()
+    user_subtasks = db.session.query(Subtask).filter(Subtask.user_id==user_id,
+                                                    Subtask.task_id.in_(task_ids),
+                                                    Subtask.show==True).all()
+
+    res_tasks = []
+    for task in user_tasks:
+        res_tasks.append(task.toDict())
+
+    # レスポンス : {task_id : [{sub_task_1}], {sub_task_2}, ...]}
+    # res_subtasks = {id:[] for id in task_ids}
+    # for subtask in user_subtasks:
+    #   res_subtasks[subtask.task_id].append(subtask.toDict())
+
+    res_subtasks = [subtask.toDict() for subtask in user_subtasks]
+
+    return jsonify({
+                    'tasks'   : res_tasks,
+                    'subtasks': res_subtasks
+                    })
+
+@app.route('/user/<int:user_id>/desc', methods=['GET'])
+#ユーザーごとのタスクをidに基づき降順で表示
+def user_desc(user_id):
+
+    db_task_ids = db.session.query(Task.id).filter(Task.user_id == user_id, Task.show==True).all()
+    task_ids = [task_obj.id for task_obj in db_task_ids]
+    # task取得
+    user_tasks = db.session.query(Task).filter(Task.user_id == user_id, Task.show==True).order_by(Task.id.desc()).all()
+    user_subtasks = db.session.query(Subtask).filter(Subtask.user_id==user_id,
+                                                    Subtask.task_id.in_(task_ids),
+                                                    Subtask.show==True).all()
+
+    res_tasks = []
+    for task in user_tasks:
+        res_tasks.append(task.toDict())
+
+    res_subtasks = [subtask.toDict() for subtask in user_subtasks]
+
+    return jsonify({
+                    'tasks'   : res_tasks,
+                    'subtasks': res_subtasks
+                    })
 
 @app.route('/user', methods=['POST'])
 def register_user():
@@ -175,6 +225,36 @@ def list_todo():
                         "created_at":task.created_at,
                         "limit_at":task.limit_at,
                         'title':task.title,
+                        }
+        response_object.append(response_dict)
+    return jsonify(response_object)
+
+@app.route('/task/asc_id', methods=['GET'])
+#タスク一覧をidに基づき昇順で表示
+def asc_todo():
+    tasks = Task.query.order_by(Task.id.asc()).all()
+    response_object = []
+    for task in tasks:
+        response_dict = {'id': task.id,
+                        'user_id':task.user_id,
+                        "created_at":task.created_at,
+                        "limit_at":task.limit_at,
+                        'task':task.task,
+                        }
+        response_object.append(response_dict)
+    return jsonify(response_object)
+
+@app.route('/task/desc_id', methods=['GET'])
+#タスク一覧をidに基づき降順で表示
+def desc_todo():
+    tasks = Task.query.order_by(Task.id.desc()).all()
+    response_object = []
+    for task in tasks:
+        response_dict = {'id': task.id,
+                        'user_id':task.user_id,
+                        "created_at":task.created_at,
+                        "limit_at":task.limit_at,
+                        'task':task.task,
                         }
         response_object.append(response_dict)
     return jsonify(response_object)
