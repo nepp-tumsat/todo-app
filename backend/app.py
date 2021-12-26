@@ -264,6 +264,7 @@ def create_todo():
     new_task = Task()
     # requestの辞書を取得
     request_dict = request.get_json()
+    print("aiueo" , request)
     new_task.title = request_dict['title']
     new_task.user_id = request_dict['user_id']
     db.session.add(new_task)

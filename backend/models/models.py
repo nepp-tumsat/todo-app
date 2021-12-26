@@ -33,6 +33,7 @@ class Task(db.Model):
   title = db.Column(db.String(255), nullable=True)
   show = db.Column(db.Boolean, nullable=False, default=True, server_default="true")
   done = db.Column(db.Boolean, nullable=False, default=False, server_default="false")
+  sorted_id = db.Column(INTEGER(unsigned=True),nullable=False, autoincrement=True)
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
   limit_at = db.Column(db.Date)
   sub_tasks = db.relationship('Subtask',backref=db.backref('task',lazy=True))
@@ -47,6 +48,7 @@ class Task(db.Model):
       'title': self.title,
       'show': self.show,
       'done': self.done,
+      'sorted_id': self.sorted_id,
       'created_at': self.created_at,
       'limit_at': self.limit_at,
     }
